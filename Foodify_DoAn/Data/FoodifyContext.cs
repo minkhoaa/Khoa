@@ -1,0 +1,124 @@
+﻿using Foodify_DoAn.Data;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+
+public class FoodifyContext : IdentityDbContext<
+    TaiKhoan,
+    VaiTro,
+    int,
+    TaiKhoanClaim,
+    TaiKhoanVaiTro,
+    TaiKhoanLogin,
+    VaiTroClaim,
+    TaiKhoanToken>
+{
+    public FoodifyContext(DbContextOptions<FoodifyContext> options) : base(options) { }
+
+    public DbSet<NguoiDung> NguoiDungs { get; set; }
+    public DbSet<CongThuc> CongThucs { get; set; }
+    public DbSet<NguyenLieu> NguyenLieus { get; set; }
+    public DbSet<CTCongThuc> CTCongThucs { get; set; }
+    public DbSet<DanhGia> DanhGias { get; set; }
+    public DbSet<CTDaLuu> CTDaLuus { get; set; }
+    public DbSet<CTDaThich> CTDaThichs { get; set; }
+    public DbSet<TheoDoi> TheoDois { get; set; }
+    public DbSet<ThongBao> ThongBaos { get; set; }
+
+  
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        builder.Entity<TaiKhoan>().ToTable("TaiKhoan");
+        builder.Entity<VaiTro>().ToTable("VaiTro");
+        builder.Entity<TaiKhoanClaim>().ToTable("TaiKhoan_Claim");
+        builder.Entity<TaiKhoanLogin>().ToTable("TaiKhoan_Login");
+        builder.Entity<TaiKhoanToken>().ToTable("TaiKhoan_Token");
+        builder.Entity<VaiTroClaim>().ToTable("VaiTro_Claim");
+        builder.Entity<TaiKhoanVaiTro>().ToTable("TaiKhoan_VaiTro");
+
+        builder.Entity<NguoiDung>().ToTable("NguoiDung");
+        builder.Entity<CongThuc>().ToTable("CongThuc");
+        builder.Entity<NguyenLieu>().ToTable("NguyenLieu");
+        builder.Entity<CTCongThuc>().ToTable("CTCongThuc");
+        builder.Entity<DanhGia>().ToTable("DanhGia");
+        builder.Entity<CTDaLuu>().ToTable("CTDaLuu");
+        builder.Entity<CTDaThich>().ToTable("CTDaThich");
+        builder.Entity<TheoDoi>().ToTable("TheoDoi");
+        builder.Entity<ThongBao>().ToTable("ThongBao");
+
+        builder.Entity<NguoiDung>()
+            .HasOne(nd => nd.TaiKhoan)
+            .WithOne(tk => tk.NguoiDung)
+            .HasForeignKey<NguoiDung>(nd => nd.MaTK)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<CTCongThuc>()
+            .HasKey(ct => new { ct.MaCT, ct.MaNL });
+
+        builder.Entity<CTCongThuc>()
+            .HasOne(ct => ct.CongThuc)
+            .WithMany(c => c.CTCongThucs)
+            .HasForeignKey(ct => ct.MaCT);
+
+        builder.Entity<CTCongThuc>()
+            .HasOne(ct => ct.NguyenLieu)
+            .WithMany(nl => nl.CTCongThucs)
+            .HasForeignKey(ct => ct.MaNL);
+
+        builder.Entity<CTDaLuu>()
+            .HasKey(dl => new { dl.MaND, dl.MaCT });
+
+        builder.Entity<CTDaLuu>()
+            .HasOne(dl => dl.NguoiDung)
+            .WithMany(nd => nd.CTDaLuus)
+            .HasForeignKey(dl => dl.MaND);
+
+        builder.Entity<CTDaLuu>()
+            .HasOne(dl => dl.CongThuc)
+            .WithMany(ct => ct.CTDaLuus)
+            .HasForeignKey(dl => dl.MaCT);
+
+        builder.Entity<CTDaThich>()
+            .HasKey(dt => new { dt.MaND, dt.MaCT });
+
+        builder.Entity<CTDaThich>()
+            .HasOne(dt => dt.NguoiDung)
+            .WithMany(nd => nd.CTDaThichs)
+            .HasForeignKey(dt => dt.MaND);
+
+        builder.Entity<CTDaThich>()
+            .HasOne(dt => dt.CongThuc)
+            .WithMany(ct => ct.CTDaThichs)
+            .HasForeignKey(dt => dt.MaCT);
+
+        builder.Entity<TheoDoi>()
+            .HasKey(td => new { td.Following_ID, td.Followed_ID });
+
+        builder.Entity<TheoDoi>()
+            .HasOne(td => td.Follower)
+            .WithMany(nd => nd.Followers)
+            .HasForeignKey(td => td.Following_ID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<TheoDoi>()
+            .HasOne(td => td.Followed)
+            .WithMany(nd => nd.Followeds)
+            .HasForeignKey(td => td.Followed_ID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<TaiKhoanVaiTro>()
+       .HasKey(tkvt => new { tkvt.UserId, tkvt.RoleId });
+
+        builder.Entity<TaiKhoanVaiTro>()
+            .HasOne(tkvt => tkvt.TaiKhoan)
+            .WithMany(tk => tk.TaiKhoanVaiTros)
+            .HasForeignKey(tkvt => tkvt.UserId);
+
+        builder.Entity<TaiKhoanVaiTro>()
+            .HasOne(tkvt => tkvt.VaiTro)
+            .WithMany(vt => vt.TaiKhoanVaiTros)
+            .HasForeignKey(tkvt => tkvt.RoleId);
+    }
+
+}
