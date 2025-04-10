@@ -11,6 +11,7 @@ using System.Net;
 using System.Text;
 using FluentEmail.Core;
 using FluentEmail.Smtp;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,10 @@ builder.Services.AddIdentity<TaiKhoan, VaiTro>()
     .AddEntityFrameworkStores<FoodifyContext>().AddDefaultTokenProviders();
 builder.Services.AddScoped<IAccountRepository, AccountManager>();
 builder.Services.AddScoped<IEmailRepository, EmailService>();
+
+// Update the AutoMapper configuration to use an instance of DbMapper instead of the type itself.
+builder.Services.AddAutoMapper(config => config.AddProfile(new DbMapper()));
+builder.Services.AddScoped<IRecipeRepository, RecipeService>(); 
 builder.Services.AddAuthentication(option =>
 {
     option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

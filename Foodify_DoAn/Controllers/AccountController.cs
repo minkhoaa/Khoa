@@ -81,6 +81,7 @@ namespace Foodify_DoAn.Controllers
         }
 
         [HttpPost("Update")]
+        [Authorize]
       
         public async Task<IActionResult> UpdateInformationUser([FromBody] UpdateUserInfoModel model)
         {
