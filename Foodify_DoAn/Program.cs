@@ -67,11 +67,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<FoodifyContext>();
+    db.Database.Migrate();
+}
+
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 
-var builderUrl = WebApplication.CreateBuilder(args);
-
-builderUrl.WebHost.UseUrls($"http://*:{port}");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -81,7 +84,6 @@ if (app.Environment.IsDevelopment())
 }
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
+app.UseCors();
 app.Run();
