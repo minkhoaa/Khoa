@@ -28,7 +28,7 @@ namespace Foodify_DoAn.Controllers
         }
      
 
-        [HttpPost("SignUp/otp")]
+        [HttpPost("signup")]
         
         public async Task<IActionResult> SignUpWithOtpConfirmed(string email, string otp)
         {
@@ -41,7 +41,7 @@ namespace Foodify_DoAn.Controllers
         }
 
 
-        [HttpPost("SignUp/SendOtp")]
+        [HttpPost("signup/otp")]
         public async Task<IActionResult> SignUp(SignUpModel signUpModel)
         {
             if (!ModelState.IsValid)
@@ -57,7 +57,7 @@ namespace Foodify_DoAn.Controllers
 
             return Ok("Mã otp được gửi thành công");
         }
-        [HttpPost("SignIn")]
+        [HttpPost("login")]
         public async Task<IActionResult> SignIn(SignInModel signInModel)
         {
             var result = await accountRepository.SignInAsync(signInModel);
@@ -69,7 +69,7 @@ namespace Foodify_DoAn.Controllers
             return Ok(result); 
         }
 
-        [HttpPost("SignIn/Auth")]
+        [HttpPost("login/auth")]
         public async Task<IActionResult> Authenticate(TokenModel token)
         {
             var user = await accountRepository.AuthenticationAsync(token);
@@ -80,7 +80,7 @@ namespace Foodify_DoAn.Controllers
             });
         }
 
-        [HttpPost("Update")]
+        [HttpPost("update")]
         [Authorize]
       
         public async Task<IActionResult> UpdateInformationUser([FromBody] UpdateUserInfoModel model)
