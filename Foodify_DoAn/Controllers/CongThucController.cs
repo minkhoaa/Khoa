@@ -20,7 +20,7 @@ namespace Foodify_DoAn.Controllers
             _repository = repository;
         }
 
-        [HttpGet]
+        [HttpGet("getAll")]
         public async Task<IActionResult> getAllCongthucs()
         {
             var congthucs = await _repository.getAllCongThucs();
