@@ -28,6 +28,7 @@ builder.Services.AddIdentity<TaiKhoan, VaiTro>()
 builder.Services.AddScoped<IAccountRepository, AccountManager>();
 builder.Services.AddScoped<IEmailRepository, EmailService>();
 
+
 // Update the AutoMapper configuration to use an instance of DbMapper instead of the type itself.
 builder.Services.AddAutoMapper(config => config.AddProfile(new DbMapper()));
 builder.Services.AddScoped<IRecipeRepository, RecipeService>(); 
@@ -63,7 +64,11 @@ builder.Services
     });
 builder.Services.AddMemoryCache(); 
 builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Urls.Add($"http://*:{port}");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
