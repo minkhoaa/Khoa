@@ -9,6 +9,6 @@ namespace Foodify_DoAn.Model
         [Required]
         public string Password { get; set; } = null!;
         [Required]
-        public string ComfirmPassword { get; set; } = null!;
+        public string confirmPassword { get; set; } = null!;
     }
 }
