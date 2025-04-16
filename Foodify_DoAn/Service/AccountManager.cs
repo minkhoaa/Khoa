@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Update.Internal;
@@ -16,6 +18,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.Json;
 
 namespace Foodify_DoAn.Service
 {
@@ -26,16 +29,16 @@ namespace Foodify_DoAn.Service
         private readonly IConfiguration configuration;
         private readonly RoleManager<VaiTro> roleManager;
         private readonly IFluentEmail fluentEmail;
-        private readonly IMemoryCache memoryCache;
+        private readonly IDistributedCache TempOtp;
         private readonly FoodifyContext foodifyContext;
 
         public AccountManager(UserManager<TaiKhoan> userManager, SignInManager<TaiKhoan> signInManager,
             RoleManager<VaiTro> roleManager, IConfiguration configuration, IFluentEmail fluentEmail,
-            IMemoryCache memoryCache, FoodifyContext foodifyContext
+            IDistributedCache TempOtp, FoodifyContext foodifyContext
             )
         {
             this.foodifyContext = foodifyContext;
-            this.memoryCache = memoryCache;
+            this.TempOtp = TempOtp;
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.configuration = configuration;
@@ -109,57 +112,63 @@ namespace Foodify_DoAn.Service
         }
         public async Task<bool> SendEmailConfirmationAsync(SignUpModel signUpModel)
         {
-            var userExist = await userManager.FindByEmailAsync(signUpModel.Email);
-            if (userExist != null) return false;
+            var otp = new Random().Next(100000, 999999).ToString();
 
-            try
+            // Xoá các OTP cũ chưa hết hạn (nếu cần)
+            var oldOtps = await foodifyContext.OtpCodes
+                .Where(o => o.Email == signUpModel.Email)
+                .ToListAsync();
+
+            foodifyContext.OtpCodes.RemoveRange(oldOtps);
+
+            // Lưu OTP mới vào DB
+            var otpCode = new OtpCode
             {
-                var otp = new Random().Next(100000, 999999).ToString();
-                memoryCache.Set($"OTP_{signUpModel.Email}", new
-                {
-                    Otp = otp,
-                    Password = signUpModel.Password
-                }, TimeSpan.FromMinutes(1));
-                await fluentEmail.To(signUpModel.Email)
-                    .SetFrom("noreply@foodify.com")
-                    .Subject("Mã OTP xác thực email")
-                    .Body($"<p>Mã OTP của bạn là: <strong>{otp}</strong> (hiệu lực trong 1 phút).</p>", true)
-                    .SendAsync();
+                Email = signUpModel.Email,
+                Code = otp,
+                Password = signUpModel.Password,
+                ExpiredAt = DateTime.UtcNow.AddMinutes(3)
+            };
 
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            await foodifyContext.OtpCodes.AddAsync(otpCode);
+            await foodifyContext.SaveChangesAsync();
 
+            // Gửi email
+            await fluentEmail.To(signUpModel.Email)
+                .Subject("Mã OTP xác thực")
+                .Body($"Mã OTP của bạn là: <strong>{otp}</strong>. Có hiệu lực trong 3 phút.", true)
+                .SendAsync();
+
+            return true;
         }
 
-        public async Task<bool> SignUpWithOtpAsync(string email, string otp)
-        {
-            if (!memoryCache.TryGetValue($"OTP_{email}", out dynamic? cacheData)) return false;
 
-            if (cacheData.Otp != otp) return false;
+        public async Task<bool> SignUpWithOtpAsync(ConfirmOtp confirmOtp)
+        {
+            var otpCode = await foodifyContext.OtpCodes
+                .FirstOrDefaultAsync(x => x.Email == confirmOtp.email && x.Code == confirmOtp.otp);
+
+            if (otpCode == null || otpCode.ExpiredAt < DateTime.UtcNow)
+                return false;
+
             var user = new TaiKhoan
             {
-                Email = email,
-                UserName = email,
+                Email = confirmOtp.email,
+                UserName = confirmOtp.email,
                 EmailConfirmed = true,
             };
 
-            var result = await userManager.CreateAsync(user, cacheData.Password);
+            var result = await userManager.CreateAsync(user, otpCode.Password);
             if (!result.Succeeded) return false;
+
             if (!await roleManager.RoleExistsAsync(RoleModel.User))
-            {
-                var role = new VaiTro { Name = RoleModel.User };
-                await roleManager.CreateAsync(role);
-            }
+                await roleManager.CreateAsync(new VaiTro { Name = RoleModel.User });
 
             await userManager.AddToRoleAsync(user, RoleModel.User);
 
             var nguoiDung = new NguoiDung
             {
-                TenND = "user" + new Random().Next(1, maxValue: 99999),
+                TenND = "user" + new Random().Next(1, 99999),
                 MaTK = user.Id,
                 Email = user.Email,
                 GioiTinh = true,
@@ -172,13 +181,12 @@ namespace Foodify_DoAn.Service
             };
 
             await foodifyContext.NguoiDungs.AddAsync(nguoiDung);
+            foodifyContext.OtpCodes.Remove(otpCode);
             await foodifyContext.SaveChangesAsync();
 
-            memoryCache.Remove($"OTP_{email}");
-
             return true;
-
         }
+
 
         public async Task<NguoiDung?> UpdateInformationUser(string email, UpdateUserInfoModel model)
         {

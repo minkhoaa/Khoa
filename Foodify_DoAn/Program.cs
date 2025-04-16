@@ -29,6 +29,7 @@ builder.Services.AddScoped<IAccountRepository, AccountManager>();
 builder.Services.AddScoped<IEmailRepository, EmailService>();
 
 
+
 // Update the AutoMapper configuration to use an instance of DbMapper instead of the type itself.
 builder.Services.AddAutoMapper(config => config.AddProfile(new DbMapper()));
 builder.Services.AddScoped<IRecipeRepository, RecipeService>(); 
@@ -51,6 +52,8 @@ builder.Services.AddAuthentication(option =>
     };
 });
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+
+builder.Services.AddStackExchangeRedisCache(options => options.Configuration = builder.Configuration.GetConnectionString("Redis"));
 
 var emailConfig = builder.Configuration.GetSection("EmailSettings").Get<EmailSettings>();
 

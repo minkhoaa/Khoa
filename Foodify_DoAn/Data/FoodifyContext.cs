@@ -23,8 +23,9 @@ public class FoodifyContext : IdentityDbContext<
     public DbSet<CTDaThich> CTDaThichs { get; set; }
     public DbSet<TheoDoi> TheoDois { get; set; }
     public DbSet<ThongBao> ThongBaos { get; set; }
+    public DbSet<OtpCode> OtpCodes { get; set; }
 
-  
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

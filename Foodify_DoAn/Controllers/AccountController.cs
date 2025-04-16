@@ -32,10 +32,10 @@ namespace Foodify_DoAn.Controllers
         
         public async Task<IActionResult> SignUpWithOtpConfirmed(ConfirmOtp confirmOtp)
         {
-            var result = await accountRepository.SignUpWithOtpAsync(confirmOtp.email, confirmOtp.otp);
+            var result = await accountRepository.SignUpWithOtpAsync(confirmOtp);
             if (!result)
             {
-                return NotFound("Mã otp sai");
+                return NotFound("Không thể tạo tài khoàn");
             }
             return Ok("Tạo tài khoản thành công");
         }

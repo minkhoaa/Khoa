@@ -8,7 +8,7 @@ namespace Foodify_DoAn.Repository
 {
     public interface IAccountRepository
     {
-        public Task<bool> SignUpWithOtpAsync(string email, string otp);
+        public Task<bool> SignUpWithOtpAsync(ConfirmOtp confirmOtp);
         public Task<string> SignInAsync(SignInModel signInModel);
         public Task<TaiKhoan?> AuthenticationAsync(TokenModel model);
         public Task<bool> SendEmailConfirmationAsync(SignUpModel signUpModel);
