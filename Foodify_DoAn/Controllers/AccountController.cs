@@ -28,11 +28,11 @@ namespace Foodify_DoAn.Controllers
         }
      
 
-        [HttpPost("signup")]
+        [HttpPost("signup/otp")]
         
-        public async Task<IActionResult> SignUpWithOtpConfirmed(string email, string otp)
+        public async Task<IActionResult> SignUpWithOtpConfirmed(ConfirmOtp confirmOtp)
         {
-            var result = await accountRepository.SignUpWithOtpAsync(email, otp);
+            var result = await accountRepository.SignUpWithOtpAsync(confirmOtp.email, confirmOtp.otp);
             if (!result)
             {
                 return NotFound("Mã otp sai");
@@ -41,7 +41,7 @@ namespace Foodify_DoAn.Controllers
         }
 
 
-        [HttpPost("signup/otp")]
+        [HttpPost("signup")]
         public async Task<IActionResult> SignUp(SignUpModel signUpModel)
         {
             if (!ModelState.IsValid)
