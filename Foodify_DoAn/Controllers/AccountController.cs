@@ -4,8 +4,10 @@ using Foodify_DoAn.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 using System.Security.Claims;
@@ -92,8 +94,19 @@ namespace Foodify_DoAn.Controllers
             if (result == null) return BadRequest("Không tìm thấy người dùng.");
             return Ok();
         }
-
-
-
+        [HttpPost("forgotPass")]
+        public async Task<IActionResult> ForgotUserPassword(ForgotPasswordRequest forgotPassword)
+        {
+            var sendEmail = await accountRepository.ForgotPassword(forgotPassword);
+            if (sendEmail == false) return NotFound("Không tìm thấy thông tin người dùng");
+            return Ok("Mail xác nhận được gửi thành công");
+        }
+        [HttpPost("forgotPass/otp")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordRequest resetPasswordRequest)
+        {
+            var resetPassword = await accountRepository.ResetPassword(resetPasswordRequest);
+            if (resetPassword == false) return NotFound("Không thể thay đổi password");
+            return Ok("Thay đổi thành công");
+        }
     }
 }

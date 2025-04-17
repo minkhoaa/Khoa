@@ -3,14 +3,18 @@ using Foodify_DoAn.Data;
 using Foodify_DoAn.Model;
 using Foodify_DoAn.Repository;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Update.Internal;
+using System.Diagnostics.Contracts;
 using System.Diagnostics.Eventing.Reader;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
@@ -19,6 +23,7 @@ using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using static System.Net.WebRequestMethods;
 
 namespace Foodify_DoAn.Service
@@ -208,5 +213,35 @@ namespace Foodify_DoAn.Service
             return nguoiDung;
         }
 
+        public async Task<bool> ForgotPassword(ForgotPasswordRequest forgotPasswordRequest)
+        {
+            var user = await userManager.FindByEmailAsync(forgotPasswordRequest.Email);
+            if (userManager == null) return false;
+
+            var otp = new Random().Next(100000, 999999).ToString();
+            TempOtp.Set($"ResetCode{forgotPasswordRequest.Email}", otp, TimeSpan.FromMinutes(1));
+            await fluentEmail.To(forgotPasswordRequest.Email).Subject("Mã xác nhận đặt lại mật khẩu")
+                .Body($"Mã OTP của bạn là: <strong>{otp}</strong>. Mã này sẽ hết hạn sau 1 phút.", true)
+                .SendAsync();
+            return true; 
+        }
+
+        public async Task<bool> ResetPassword(ResetPasswordRequest resetPasswordRequest)
+        {
+            if (!TempOtp.TryGetValue($"ResetCode{resetPasswordRequest.Email}", out string? cachedCode))
+                return false;
+            if (cachedCode != resetPasswordRequest.ResetCode)
+                return false;
+            var user = await userManager.FindByEmailAsync(resetPasswordRequest.Email);
+            if (user == null)
+                return false; 
+
+            TempOtp.Remove($"ResetCode:{resetPasswordRequest.Email}");
+            var resetPasswordToken = await userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await userManager.ResetPasswordAsync(user, resetPasswordToken, resetPasswordRequest.NewPassword);
+            if (result.Succeeded) return true;
+            return false; 
+
+        }
     }
 }
