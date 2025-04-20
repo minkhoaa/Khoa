@@ -37,6 +37,7 @@ builder.Services.AddIdentity<TaiKhoan, VaiTro>()
 builder.Services.AddScoped<IAccountRepository, AccountManager>();
 builder.Services.AddScoped<IEmailRepository, EmailService>();
 
+builder.Services.AddScoped<IUploadImageRepository, UploadImageService>();
 
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 

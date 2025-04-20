@@ -8,5 +8,8 @@
         public string SDT { get; set; } = string.Empty;
         public string DiaChi { get; set; } = string.Empty;
         public string TieuSu { get; set; } = string.Empty;
+
+        public IFormFile file { get; set; }
+      
     }
 }

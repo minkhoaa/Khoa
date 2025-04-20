@@ -1,8 +1,10 @@
 ﻿using Foodify_DoAn.Data;
 using Foodify_DoAn.Model;
 using Foodify_DoAn.Repository;
+using Foodify_DoAn.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -20,12 +22,15 @@ namespace Foodify_DoAn.Controllers
     {
         private readonly IAccountRepository accountRepository;
         private readonly IEmailRepository emailSender;
-        private readonly FoodifyContext _context; 
+        private readonly FoodifyContext _context;
+        private readonly IUploadImageRepository uploadImageRepository;
 
-        public AccountController(IAccountRepository accountRepository, IEmailRepository emailSender, FoodifyContext context )
+
+        public AccountController(IAccountRepository accountRepository, IEmailRepository emailSender, FoodifyContext context , IUploadImageRepository uploadImageRepository)
         {
             this.accountRepository = accountRepository;
             this.emailSender = emailSender;
+            this.uploadImageRepository = uploadImageRepository; 
             _context = context;
         }
      
@@ -84,7 +89,6 @@ namespace Foodify_DoAn.Controllers
 
         [HttpPost("update")]
         [Authorize]
-      
         public async Task<IActionResult> UpdateInformationUser([FromBody] UpdateUserInfoModel model)
         {
             var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
@@ -94,6 +98,27 @@ namespace Foodify_DoAn.Controllers
             if (result == null) return BadRequest("Không tìm thấy người dùng.");
             return Ok();
         }
+        [Authorize]
+        [HttpPost("updateAvatar")]
+        public async Task<IActionResult> UploadAvatar(IFormFile image)
+        {
+            var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(userEmail)) return Unauthorized("Vui lòng đăng nhập");
+
+
+            try
+            {
+                var url = await uploadImageRepository.UploadAvatarAsync(image, userEmail);
+                return Ok(new { avatarUrl = url, message = "Upload thành công" });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+        }
+
+
         [HttpPost("forgotPass")]
         public async Task<IActionResult> ForgotUserPassword(ForgotPasswordRequest forgotPassword)
         {

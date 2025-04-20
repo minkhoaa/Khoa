@@ -1,4 +1,5 @@
-﻿using FluentEmail.Core;
+﻿using CloudinaryDotNet;
+using FluentEmail.Core;
 using Foodify_DoAn.Data;
 using Foodify_DoAn.Model;
 using Foodify_DoAn.Repository;
@@ -37,10 +38,11 @@ namespace Foodify_DoAn.Service
         private readonly IFluentEmail fluentEmail;
         private readonly IMemoryCache TempOtp;
         private readonly FoodifyContext foodifyContext;
+        private readonly Cloudinary cloudinary;
 
         public AccountManager(UserManager<TaiKhoan> userManager, SignInManager<TaiKhoan> signInManager,
             RoleManager<VaiTro> roleManager, IConfiguration configuration, IFluentEmail fluentEmail,
-            IMemoryCache TempOtp, FoodifyContext foodifyContext
+            IMemoryCache TempOtp, FoodifyContext foodifyContext, Cloudinary cloudinary
             )
         {
             this.foodifyContext = foodifyContext;
@@ -50,6 +52,7 @@ namespace Foodify_DoAn.Service
             this.configuration = configuration;
             this.roleManager = roleManager;
             this.fluentEmail = fluentEmail;
+            this.cloudinary = cloudinary; 
         }
         public async Task<TaiKhoan?> AuthenticationAsync(TokenModel token)
         {
