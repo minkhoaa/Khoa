@@ -133,5 +133,13 @@ namespace Foodify_DoAn.Controllers
             if (resetPassword == false) return NotFound("Không thể thay đổi password");
             return Ok("Thay đổi thành công");
         }
-    }
+
+        [HttpPost("getuserinfo")] 
+        public async Task<IActionResult> getUserInformation([FromBody]string token)
+        {
+            var result = await accountRepository.GetUserInfoAsync(token);
+            if (result == null) return NotFound("Không tìm thấy thông tin người dùng");
+            return Ok(result);
+        }
+    } 
 }

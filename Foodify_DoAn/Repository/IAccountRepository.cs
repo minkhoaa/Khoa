@@ -18,7 +18,7 @@ namespace Foodify_DoAn.Repository
         public Task<bool> ForgotPassword(ForgotPasswordRequest forgotPasswordRequest);
 
         public Task<bool> ResetPassword(ResetPasswordRequest resetPasswordRequest);
-       
 
+        public Task<UserReturn> GetUserInfoAsync(string token);
     }
 }

@@ -246,5 +246,29 @@ namespace Foodify_DoAn.Service
             return false; 
 
         }
+
+        public async Task<UserReturn> GetUserInfoAsync(string token)
+        {
+            if (string.IsNullOrEmpty(token)) return null!;
+
+            var user = await AuthenticationAsync(new TokenModel { AccessToken = token });
+            if (user == null) return null;
+            var nguoiDung = await foodifyContext.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == user.Id);
+            if (nguoiDung == null) return null;
+            var nguoiDungDto = new UserReturn
+            {
+                TenND = nguoiDung.TenND,
+                Email = nguoiDung.Email,
+                SDT = nguoiDung.SDT,
+                DiaChi = nguoiDung.DiaChi,
+                NgaySinh = nguoiDung.NgaySinh,
+                GioiTinh = nguoiDung.GioiTinh,
+                TieuSu = nguoiDung.TieuSu,
+                AnhDaiDien = nguoiDung.AnhDaiDien,
+                LuotTheoDoi = nguoiDung.LuotTheoDoi
+
+            };
+            return nguoiDungDto;
+        }
     }
 }
