@@ -35,11 +35,12 @@ namespace Foodify_DoAn.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> addCongThuc(RecipeDto recipe)
+        public async Task<IActionResult> addCongThuc(string token, [FromBody]RecipeDto recipe)
         {
-            var congthuc = await _repository.addCongThuc(recipe);
-            if (congthuc != null) return Ok(congthuc);
-            return NotFound("Không thể thêm công thức"); 
+            var congthuc = await _repository.addCongThuc(token,recipe);
+            if (congthuc == null) return NotFound("không thể thêm công thức, vui lòng đăng nhập");
+            return Ok(congthuc);
+    
         }
 
         [HttpPut]

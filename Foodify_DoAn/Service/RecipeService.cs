@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using Castle.Core.Logging;
 using Foodify_DoAn.Data;
 using Foodify_DoAn.Model;
 using Foodify_DoAn.Repository;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualBasic;
 using Npgsql.Replication;
 using System.Diagnostics.CodeAnalysis;
@@ -14,20 +17,27 @@ namespace Foodify_DoAn.Service
     {
         private readonly FoodifyContext _context;
         private readonly IMapper _dbMapper;
+        private readonly IAccountRepository _account;
 
-        public RecipeService(FoodifyContext context, IMapper dbMapper)
+
+        public RecipeService(FoodifyContext context, IMapper dbMapper, IAccountRepository accountRepository)
         {
             _context = context;
             _dbMapper = dbMapper;
+            _account = accountRepository;
         }
-        public async Task<CongThuc> addCongThuc(RecipeDto recipe)
-        {
-            CongThuc congthuc = new CongThuc();
-             _dbMapper.Map(recipe, congthuc);
-            await _context.AddAsync(congthuc); 
-            await _context.SaveChangesAsync();
-            return congthuc;
 
+        public async Task<CongThuc> addCongThuc(string token, RecipeDto congthuc)
+        {
+            if (string.IsNullOrEmpty(token)) return null;
+            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = token });
+            if (user == null) return null;
+
+            CongThuc recipe = new CongThuc();
+            _dbMapper.Map(congthuc, recipe);
+            _context.CongThucs.Add(recipe);
+            await _context.SaveChangesAsync();
+            return recipe; 
         }
 
         public async Task<bool> deleteCongThuc(int id)
