@@ -36,6 +36,7 @@ builder.Services.AddIdentity<TaiKhoan, VaiTro>()
     .AddEntityFrameworkStores<FoodifyContext>().AddDefaultTokenProviders();
 builder.Services.AddScoped<IAccountRepository, AccountManager>();
 builder.Services.AddScoped<IEmailRepository, EmailService>();
+builder.Services.AddScoped<INguyenLieuRepository, NguyenLieuService>();
 
 builder.Services.AddScoped<IUploadImageRepository, UploadImageService>();
 
