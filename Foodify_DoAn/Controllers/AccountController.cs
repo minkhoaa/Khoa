@@ -95,26 +95,7 @@ namespace Foodify_DoAn.Controllers
             if (result == null) return BadRequest("Không tìm thấy người dùng.");
             return Ok();
         }
-        [Authorize]
-        [HttpPost("updateAvatar")]
-        public async Task<IActionResult> UploadAvatar(IFormFile image)
-        {
-            var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(userEmail)) return Unauthorized("Vui lòng đăng nhập");
-
-
-            try
-            {
-                var url = await uploadImageRepository.UploadAvatarAsync(image, userEmail);
-                return Ok(new { avatarUrl = url, message = "Upload thành công" });
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-
-        }
-
+       
 
         [HttpPost("forgotPass")]
         public async Task<IActionResult> ForgotUserPassword(ForgotPasswordRequest forgotPassword)

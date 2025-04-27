@@ -10,6 +10,7 @@
         public string DiaChi { get; set; } = string.Empty;
         public string TieuSu { get; set; } = string.Empty;
 
+        public string Avatar { get; set; } = string.Empty;
 
 
     }

@@ -212,7 +212,7 @@ namespace Foodify_DoAn.Service
             nguoiDung.SDT = model.SDT;
             nguoiDung.DiaChi = model.DiaChi;
             nguoiDung.TieuSu = model.TieuSu;
-
+            nguoiDung.AnhDaiDien = model.Avatar; 
             await foodifyContext.SaveChangesAsync();
 
             return nguoiDung;
