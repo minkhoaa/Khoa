@@ -29,16 +29,30 @@ namespace Foodify_DoAn.Service
             _account = accountRepository;
         }
 
-        public async Task<CongThuc> addCongThuc(string token, RecipeDto congthuc)
+        public async Task<CongThuc> addCongThuc( RecipeDto congthuc)
         {
-            if (string.IsNullOrEmpty(token)) return null;
-            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = token });
+            if (string.IsNullOrEmpty(congthuc.token)) return null;
+            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = congthuc.token });
             if (user == null) return null;
 
             CongThuc recipe = new CongThuc();
-            _dbMapper.Map(congthuc, recipe);
+             _dbMapper.Map(congthuc, recipe);
             recipe.MaND = user.NguoiDung.MaND;
-            _context.CongThucs.Add(recipe);
+
+            foreach (var nl in congthuc.NguyenLieus)
+            {
+                var CtCongThuc = new CTCongThuc
+                {
+                    MaCT = recipe.MaCT,
+                    MaNL = nl.MaNL,
+                    DinhLuong = nl.DinhLuong,
+                    DonViTinh = nl.DonViTinh
+                };
+               await _context.CTCongThucs.AddAsync(CtCongThuc);
+            }
+
+            await _context.CongThucs.AddAsync(recipe);
+           
             await _context.SaveChangesAsync();
             return recipe; 
         }
