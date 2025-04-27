@@ -88,13 +88,10 @@ namespace Foodify_DoAn.Controllers
         }
 
         [HttpPost("update")]
-        [Authorize]
         public async Task<IActionResult> UpdateInformationUser([FromBody] UpdateUserInfoModel model)
         {
-            var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(userEmail)) return Unauthorized();
-
-            var result = await accountRepository.UpdateInformationUser(userEmail, model);
+           
+            var result = await accountRepository.UpdateInformationUser( model);
             if (result == null) return BadRequest("Không tìm thấy người dùng.");
             return Ok();
         }

@@ -193,11 +193,11 @@ namespace Foodify_DoAn.Service
         }
 
 
-        public async Task<NguoiDung?> UpdateInformationUser(string token, UpdateUserInfoModel model)
+        public async Task<NguoiDung?> UpdateInformationUser( UpdateUserInfoModel model)
         {
-            if (string.IsNullOrEmpty(token)) return null;
+            if (string.IsNullOrEmpty(model.token)) return null;
 
-            var taikhoan = await AuthenticationAsync(new TokenModel { AccessToken = token });
+            var taikhoan = await AuthenticationAsync(new TokenModel { AccessToken = model.token });
             if (taikhoan == null) return null;
 
             var nguoiDung = await foodifyContext.NguoiDungs
@@ -217,7 +217,6 @@ namespace Foodify_DoAn.Service
 
             return nguoiDung;
         }
-
         public async Task<bool> ForgotPassword(ForgotPasswordRequest forgotPasswordRequest)
         {
             var user = await userManager.FindByEmailAsync(forgotPasswordRequest.Email);
