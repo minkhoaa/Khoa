@@ -31,6 +31,21 @@ builder.Services.AddCors(option => option.AddDefaultPolicy(policy => policy.Allo
 
 builder.Configuration["ConnectionStrings:MyDB"] = Environment.GetEnvironmentVariable("CONNECTIONSTRINGS__MYDB");
 
+builder.Configuration["ConnectionStrings:Redis"] = Environment.GetEnvironmentVariable("CONNECTIONSTRINGS__REDIS");
+
+builder.Configuration["JWT:ValidAudience"] = Environment.GetEnvironmentVariable("JWT__VALIDAUDIENCE");
+builder.Configuration["JWT:ValidIssuer"] = Environment.GetEnvironmentVariable("JWT__VALIDISSUER");
+builder.Configuration["JWT:SecretKey"] = Environment.GetEnvironmentVariable("JWT__SECRETKEY");
+
+builder.Configuration["EmailSettings:SmtpServer"] = Environment.GetEnvironmentVariable("EMAILSETTINGS__SMTPSERVER");
+builder.Configuration["EmailSettings:SmtpPort"] = Environment.GetEnvironmentVariable("EMAILSETTINGS__SMTPPORT");
+builder.Configuration["EmailSettings:SenderEmail"] = Environment.GetEnvironmentVariable("EMAILSETTINGS__SENDEREMAIL");
+builder.Configuration["EmailSettings:SenderPassword"] = Environment.GetEnvironmentVariable("EMAILSETTINGS__SENDERPASSWORD");
+builder.Configuration["EmailSettings:EnableSSL"] = Environment.GetEnvironmentVariable("EMAILSETTINGS__ENABLESSL");
+
+builder.Configuration["CloudinarySettings:CloudName"] = Environment.GetEnvironmentVariable("CLOUDINARYSETTINGS__CLOUDNAME");
+builder.Configuration["CloudinarySettings:ApiKey"] = Environment.GetEnvironmentVariable("CLOUDINARYSETTINGS__APIKEY");
+builder.Configuration["CloudinarySettings:ApiSecret"] = Environment.GetEnvironmentVariable("CLOUDINARYSETTINGS__APISECRET");
 builder.Services.AddDbContext<FoodifyContext>(option => option.UseNpgsql(builder.Configuration.GetConnectionString("MyDB")));
 builder.Services.AddIdentity<TaiKhoan, VaiTro>()
     .AddEntityFrameworkStores<FoodifyContext>().AddDefaultTokenProviders();
