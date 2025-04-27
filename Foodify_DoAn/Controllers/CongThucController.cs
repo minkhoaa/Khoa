@@ -20,10 +20,10 @@ namespace Foodify_DoAn.Controllers
             _repository = repository;
         }
 
-        [HttpGet("getAll")]
-        public async Task<IActionResult> getAllCongthucs(string token)
+        [HttpPost("getAll")]
+        public async Task<IActionResult> getAllCongthucs([FromBody]RecipeRequestDto recipe)
         {
-             var congthucs = await _repository.getAllCongThucs(token);
+             var congthucs = await _repository.getAllCongThucs(recipe);
                 
             return Ok(congthucs);
         }
@@ -35,7 +35,7 @@ namespace Foodify_DoAn.Controllers
             return Ok(congthuc);
         }
 
-        [HttpPost]
+        [HttpPost("addcongthuc")]
         public async Task<IActionResult> addCongThuc(string token, [FromBody]RecipeDto recipe)
         {
             var congthuc = await _repository.addCongThuc(token,recipe);
@@ -44,14 +44,14 @@ namespace Foodify_DoAn.Controllers
     
         }
 
-        [HttpPut]
+        [HttpPut("updatecongthuc")]
         public async Task<IActionResult> updateCongThuc(int id, RecipeDto recipe)
         {
             var congthuc = await _repository.updateCongThuc(id, recipe);
             if (congthuc == null) return NotFound("Không thể chỉnh sửa công thức");
             return Ok(congthuc);
         }
-        [HttpDelete]
+        [HttpDelete("deletecongthuc")]
         public async Task<IActionResult> deleteCongThuc(int id)
         {
             var congthuc = await _repository.deleteCongThuc(id);

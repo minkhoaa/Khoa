@@ -52,22 +52,23 @@ namespace Foodify_DoAn.Service
             return true; 
         }
 
-        public async Task<List<CongThuc>> getAllCongThucs(string token, int pageNumber = 1, int pageSize = 10)
+        public async Task<List<CongThuc>> getAllCongThucs(RecipeRequestDto recipe)
         {
-            if (string.IsNullOrEmpty(token)) return await _context.CongThucs.OrderByDescending(x => x.NgayCapNhat).Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize).ToListAsync();
+         
+            if (string.IsNullOrEmpty(recipe.Token)) return await _context.CongThucs.OrderByDescending(x => x.NgayCapNhat).Skip((recipe.PageNumber - 1) * recipe.PageSize)
+                    .Take(recipe.PageSize).ToListAsync();
 
-            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = token });
-            if (user == null) return await _context.CongThucs.OrderByDescending(x => x.NgayCapNhat).Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize).ToListAsync();
+            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = recipe.Token });
+            if (user == null) return await _context.CongThucs.OrderByDescending(x => x.NgayCapNhat).Skip((recipe.PageNumber - 1) * recipe.PageSize)
+                    .Take(recipe.PageSize).ToListAsync();
 
             var followingUser = await _context.TheoDois.Where(x => x.Following_ID == user.Id).Select(a => a.Followed_ID).ToListAsync();
 
             var recipes = await _context.CongThucs
             .OrderByDescending(c => followingUser.Contains(c.MaND)) 
             .ThenByDescending(c => c.NgayCapNhat) 
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
+            .Skip((recipe.PageNumber - 1) * recipe.PageSize)
+            .Take(recipe.PageSize)
              .ToListAsync();
 
             return recipes;
