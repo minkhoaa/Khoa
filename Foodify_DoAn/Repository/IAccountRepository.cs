@@ -13,7 +13,7 @@ namespace Foodify_DoAn.Repository
         public Task<string> SignInAsync(SignInModel signInModel);
         public Task<TaiKhoan?> AuthenticationAsync(TokenModel model);
         public Task<bool> SendEmailConfirmationAsync(SignUpModel signUpModel);
-        public Task<NguoiDung?> UpdateInformationUser(string email, UpdateUserInfoModel model);
+        public Task<NguoiDung?> UpdateInformationUser(string token, UpdateUserInfoModel model);
 
         public Task<bool> ForgotPassword(ForgotPasswordRequest forgotPasswordRequest);
 

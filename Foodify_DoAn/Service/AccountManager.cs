@@ -193,13 +193,15 @@ namespace Foodify_DoAn.Service
         }
 
 
-        public async Task<NguoiDung?> UpdateInformationUser(string email, UpdateUserInfoModel model)
+        public async Task<NguoiDung?> UpdateInformationUser(string token, UpdateUserInfoModel model)
         {
-            var taiKhoan = await userManager.FindByEmailAsync(email);
-            if (taiKhoan == null) return null;
+            if (string.IsNullOrEmpty(token)) return null;
+
+            var taikhoan = await AuthenticationAsync(new TokenModel { AccessToken = token });
+            if (taikhoan == null) return null;
 
             var nguoiDung = await foodifyContext.NguoiDungs
-                .FirstOrDefaultAsync(x => x.MaTK == taiKhoan.Id);
+                .FirstOrDefaultAsync(x => x.MaTK == taikhoan.Id);
 
             if (nguoiDung == null) return null;
 
