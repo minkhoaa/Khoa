@@ -21,9 +21,10 @@ namespace Foodify_DoAn.Controllers
         }
 
         [HttpGet("getAll")]
-        public async Task<IActionResult> getAllCongthucs()
+        public async Task<IActionResult> getAllCongthucs(string token)
         {
-            var congthucs = await _repository.getAllCongThucs();
+             var congthucs = await _repository.getAllCongThucs(token);
+                
             return Ok(congthucs);
         }
         [HttpGet("{id}")]

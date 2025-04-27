@@ -110,7 +110,7 @@ namespace Foodify_DoAn.Service
             var token = new JwtSecurityToken(
                 issuer: configuration["JWT:ValidIssuer"],
                 audience: configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddHours(1),
+                expires: DateTime.Now.AddHours(3600),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha256Signature)
                 );

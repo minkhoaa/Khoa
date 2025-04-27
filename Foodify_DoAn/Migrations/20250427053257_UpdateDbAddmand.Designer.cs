@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Foodify_DoAn.Migrations
 {
     [DbContext(typeof(FoodifyContext))]
-    [Migration("20250405184109_dbContext_modified3")]
-    partial class dbContext_modified3
+    [Migration("20250427053257_UpdateDbAddmand")]
+    partial class UpdateDbAddmand
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -97,6 +97,9 @@ namespace Foodify_DoAn.Migrations
                     b.Property<int>("LuotXem")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("MaND")
+                        .HasColumnType("integer");
+
                     b.Property<string>("MoTaCT")
                         .IsRequired()
                         .HasColumnType("text");
@@ -112,6 +115,8 @@ namespace Foodify_DoAn.Migrations
                         .HasColumnType("numeric");
 
                     b.HasKey("MaCT");
+
+                    b.HasIndex("MaND");
 
                     b.ToTable("CongThuc", (string)null);
                 });
@@ -533,6 +538,16 @@ namespace Foodify_DoAn.Migrations
                     b.Navigation("NguoiDung");
                 });
 
+            modelBuilder.Entity("Foodify_DoAn.Data.CongThuc", b =>
+                {
+                    b.HasOne("Foodify_DoAn.Data.NguoiDung", "NguoiDung")
+                        .WithMany("CongThucs")
+                        .HasForeignKey("MaND")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("NguoiDung");
+                });
+
             modelBuilder.Entity("Foodify_DoAn.Data.DanhGia", b =>
                 {
                     b.HasOne("Foodify_DoAn.Data.CongThuc", "CongThuc")
@@ -664,6 +679,8 @@ namespace Foodify_DoAn.Migrations
                     b.Navigation("CTDaLuus");
 
                     b.Navigation("CTDaThichs");
+
+                    b.Navigation("CongThucs");
 
                     b.Navigation("DanhGias");
 

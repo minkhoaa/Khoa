@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Foodify_DoAn.Migrations
 {
     [DbContext(typeof(FoodifyContext))]
-    [Migration("20250415031256_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250427054834_UpdateDbContxt")]
+    partial class UpdateDbContxt
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -97,6 +97,9 @@ namespace Foodify_DoAn.Migrations
                     b.Property<int>("LuotXem")
                         .HasColumnType("integer");
 
+                    b.Property<int>("MaND")
+                        .HasColumnType("integer");
+
                     b.Property<string>("MoTaCT")
                         .IsRequired()
                         .HasColumnType("text");
@@ -112,6 +115,8 @@ namespace Foodify_DoAn.Migrations
                         .HasColumnType("numeric");
 
                     b.HasKey("MaCT");
+
+                    b.HasIndex("MaND");
 
                     b.ToTable("CongThuc", (string)null);
                 });
@@ -533,6 +538,17 @@ namespace Foodify_DoAn.Migrations
                     b.Navigation("NguoiDung");
                 });
 
+            modelBuilder.Entity("Foodify_DoAn.Data.CongThuc", b =>
+                {
+                    b.HasOne("Foodify_DoAn.Data.NguoiDung", "NguoiDung")
+                        .WithMany("CongThucs")
+                        .HasForeignKey("MaND")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("NguoiDung");
+                });
+
             modelBuilder.Entity("Foodify_DoAn.Data.DanhGia", b =>
                 {
                     b.HasOne("Foodify_DoAn.Data.CongThuc", "CongThuc")
@@ -664,6 +680,8 @@ namespace Foodify_DoAn.Migrations
                     b.Navigation("CTDaLuus");
 
                     b.Navigation("CTDaThichs");
+
+                    b.Navigation("CongThucs");
 
                     b.Navigation("DanhGias");
 

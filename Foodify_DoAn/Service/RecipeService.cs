@@ -9,6 +9,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualBasic;
 using Npgsql.Replication;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Net.Mail;
 using System.Security.Cryptography;
 
 namespace Foodify_DoAn.Service
@@ -35,6 +37,7 @@ namespace Foodify_DoAn.Service
 
             CongThuc recipe = new CongThuc();
             _dbMapper.Map(congthuc, recipe);
+            recipe.MaND = user.NguoiDung.MaND;
             _context.CongThucs.Add(recipe);
             await _context.SaveChangesAsync();
             return recipe; 
@@ -49,9 +52,25 @@ namespace Foodify_DoAn.Service
             return true; 
         }
 
-        public async Task<List<CongThuc>> getAllCongThucs()
+        public async Task<List<CongThuc>> getAllCongThucs(string token, int pageNumber = 1, int pageSize = 10)
         {
-            return await _context.CongThucs.ToListAsync();
+            if (string.IsNullOrEmpty(token)) return await _context.CongThucs.OrderByDescending(x => x.NgayCapNhat).Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize).ToListAsync();
+
+            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = token });
+            if (user == null) return await _context.CongThucs.OrderByDescending(x => x.NgayCapNhat).Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize).ToListAsync();
+
+            var followingUser = await _context.TheoDois.Where(x => x.Following_ID == user.Id).Select(a => a.Followed_ID).ToListAsync();
+
+            var recipes = await _context.CongThucs
+            .OrderByDescending(c => followingUser.Contains(c.MaND)) 
+            .ThenByDescending(c => c.NgayCapNhat) 
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+             .ToListAsync();
+
+            return recipes;
         }
 
         public async Task<CongThuc> getByID(int id)

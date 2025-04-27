@@ -94,6 +94,9 @@ namespace Foodify_DoAn.Migrations
                     b.Property<int>("LuotXem")
                         .HasColumnType("integer");
 
+                    b.Property<int>("MaND")
+                        .HasColumnType("integer");
+
                     b.Property<string>("MoTaCT")
                         .IsRequired()
                         .HasColumnType("text");
@@ -109,6 +112,8 @@ namespace Foodify_DoAn.Migrations
                         .HasColumnType("numeric");
 
                     b.HasKey("MaCT");
+
+                    b.HasIndex("MaND");
 
                     b.ToTable("CongThuc", (string)null);
                 });
@@ -226,35 +231,6 @@ namespace Foodify_DoAn.Migrations
                     b.HasKey("MaNL");
 
                     b.ToTable("NguyenLieu", (string)null);
-                });
-
-            modelBuilder.Entity("Foodify_DoAn.Data.OtpCode", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(6)
-                        .HasColumnType("character varying(6)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("ExpiredAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OtpCode");
                 });
 
             modelBuilder.Entity("Foodify_DoAn.Data.TaiKhoan", b =>
@@ -559,6 +535,17 @@ namespace Foodify_DoAn.Migrations
                     b.Navigation("NguoiDung");
                 });
 
+            modelBuilder.Entity("Foodify_DoAn.Data.CongThuc", b =>
+                {
+                    b.HasOne("Foodify_DoAn.Data.NguoiDung", "NguoiDung")
+                        .WithMany("CongThucs")
+                        .HasForeignKey("MaND")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("NguoiDung");
+                });
+
             modelBuilder.Entity("Foodify_DoAn.Data.DanhGia", b =>
                 {
                     b.HasOne("Foodify_DoAn.Data.CongThuc", "CongThuc")
@@ -690,6 +677,8 @@ namespace Foodify_DoAn.Migrations
                     b.Navigation("CTDaLuus");
 
                     b.Navigation("CTDaThichs");
+
+                    b.Navigation("CongThucs");
 
                     b.Navigation("DanhGias");
 

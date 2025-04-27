@@ -120,6 +120,13 @@ public class FoodifyContext : IdentityDbContext<
             .HasOne(tkvt => tkvt.VaiTro)
             .WithMany(vt => vt.TaiKhoanVaiTros)
             .HasForeignKey(tkvt => tkvt.RoleId);
+            
+            builder.Entity<CongThuc>()
+        .HasOne(ct => ct.NguoiDung)
+        .WithMany(nd => nd.CongThucs)
+        .HasForeignKey(ct => ct.MaND)
+        .OnDelete(DeleteBehavior.Cascade);
+
     }
 
 }

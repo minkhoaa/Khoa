@@ -7,31 +7,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Foodify_DoAn.Migrations
 {
     /// <inheritdoc />
-    public partial class dbContext : Migration
+    public partial class UpdateDbAddmand : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "CongThuc",
-                columns: table => new
-                {
-                    MaCT = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenCT = table.Column<string>(type: "text", nullable: false),
-                    MoTaCT = table.Column<string>(type: "text", nullable: false),
-                    TongCalories = table.Column<decimal>(type: "numeric", nullable: false),
-                    AnhCT = table.Column<string>(type: "text", nullable: false),
-                    LuotXem = table.Column<int>(type: "integer", nullable: false),
-                    LuotLuu = table.Column<int>(type: "integer", nullable: false),
-                    LuotThich = table.Column<int>(type: "integer", nullable: false),
-                    NgayCapNhat = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CongThuc", x => x.MaCT);
-                });
-
             migrationBuilder.CreateTable(
                 name: "NguyenLieu",
                 columns: table => new
@@ -86,34 +66,6 @@ namespace Foodify_DoAn.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VaiTro", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CTCongThuc",
-                columns: table => new
-                {
-                    MaCT = table.Column<int>(type: "integer", nullable: false),
-                    MaNL = table.Column<int>(type: "integer", nullable: false),
-                    DinhLuong = table.Column<decimal>(type: "numeric", nullable: false),
-                    DonViTinh = table.Column<string>(type: "text", nullable: false),
-                    CongThucMaCT = table.Column<int>(type: "integer", nullable: false),
-                    NguyenLieuMaNL = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CTCongThuc", x => new { x.MaCT, x.MaNL });
-                    table.ForeignKey(
-                        name: "FK_CTCongThuc_CongThuc_CongThucMaCT",
-                        column: x => x.CongThucMaCT,
-                        principalTable: "CongThuc",
-                        principalColumn: "MaCT",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CTCongThuc_NguyenLieu_NguyenLieuMaNL",
-                        column: x => x.NguyenLieuMaNL,
-                        principalTable: "NguyenLieu",
-                        principalColumn: "MaNL",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -210,19 +162,11 @@ namespace Foodify_DoAn.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<int>(type: "integer", nullable: false),
-                    RoleId = table.Column<int>(type: "integer", nullable: false),
-                    TaiKhoanId = table.Column<int>(type: "integer", nullable: false),
-                    VaiTroId = table.Column<int>(type: "integer", nullable: false)
+                    RoleId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TaiKhoan_VaiTro", x => new { x.UserId, x.RoleId });
-                    table.ForeignKey(
-                        name: "FK_TaiKhoan_VaiTro_TaiKhoan_TaiKhoanId",
-                        column: x => x.TaiKhoanId,
-                        principalTable: "TaiKhoan",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_TaiKhoan_VaiTro_TaiKhoan_UserId",
                         column: x => x.UserId,
@@ -232,12 +176,6 @@ namespace Foodify_DoAn.Migrations
                     table.ForeignKey(
                         name: "FK_TaiKhoan_VaiTro_VaiTro_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "VaiTro",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TaiKhoan_VaiTro_VaiTro_VaiTroId",
-                        column: x => x.VaiTroId,
                         principalTable: "VaiTro",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -265,26 +203,124 @@ namespace Foodify_DoAn.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CongThuc",
+                columns: table => new
+                {
+                    MaCT = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TenCT = table.Column<string>(type: "text", nullable: false),
+                    MoTaCT = table.Column<string>(type: "text", nullable: false),
+                    TongCalories = table.Column<decimal>(type: "numeric", nullable: false),
+                    AnhCT = table.Column<string>(type: "text", nullable: false),
+                    LuotXem = table.Column<int>(type: "integer", nullable: false),
+                    LuotLuu = table.Column<int>(type: "integer", nullable: false),
+                    LuotThich = table.Column<int>(type: "integer", nullable: false),
+                    MaND = table.Column<int>(type: "integer", nullable: true),
+                    NgayCapNhat = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CongThuc", x => x.MaCT);
+                    table.ForeignKey(
+                        name: "FK_CongThuc_NguoiDung_MaND",
+                        column: x => x.MaND,
+                        principalTable: "NguoiDung",
+                        principalColumn: "MaND",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TheoDoi",
+                columns: table => new
+                {
+                    Following_ID = table.Column<int>(type: "integer", nullable: false),
+                    Followed_ID = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TheoDoi", x => new { x.Following_ID, x.Followed_ID });
+                    table.ForeignKey(
+                        name: "FK_TheoDoi_NguoiDung_Followed_ID",
+                        column: x => x.Followed_ID,
+                        principalTable: "NguoiDung",
+                        principalColumn: "MaND",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_TheoDoi_NguoiDung_Following_ID",
+                        column: x => x.Following_ID,
+                        principalTable: "NguoiDung",
+                        principalColumn: "MaND",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ThongBao",
+                columns: table => new
+                {
+                    MaTB = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    MaND = table.Column<int>(type: "integer", nullable: false),
+                    NoiDung = table.Column<string>(type: "text", nullable: false),
+                    DaXem = table.Column<bool>(type: "boolean", nullable: false),
+                    NgayTao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    NguoiDungMaND = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ThongBao", x => x.MaTB);
+                    table.ForeignKey(
+                        name: "FK_ThongBao_NguoiDung_NguoiDungMaND",
+                        column: x => x.NguoiDungMaND,
+                        principalTable: "NguoiDung",
+                        principalColumn: "MaND",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CTCongThuc",
+                columns: table => new
+                {
+                    MaCT = table.Column<int>(type: "integer", nullable: false),
+                    MaNL = table.Column<int>(type: "integer", nullable: false),
+                    DinhLuong = table.Column<decimal>(type: "numeric", nullable: false),
+                    DonViTinh = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CTCongThuc", x => new { x.MaCT, x.MaNL });
+                    table.ForeignKey(
+                        name: "FK_CTCongThuc_CongThuc_MaCT",
+                        column: x => x.MaCT,
+                        principalTable: "CongThuc",
+                        principalColumn: "MaCT",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CTCongThuc_NguyenLieu_MaNL",
+                        column: x => x.MaNL,
+                        principalTable: "NguyenLieu",
+                        principalColumn: "MaNL",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CTDaLuu",
                 columns: table => new
                 {
                     MaND = table.Column<int>(type: "integer", nullable: false),
-                    MaCT = table.Column<int>(type: "integer", nullable: false),
-                    NguoiDungMaND = table.Column<int>(type: "integer", nullable: false),
-                    CongThucMaCT = table.Column<int>(type: "integer", nullable: false)
+                    MaCT = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CTDaLuu", x => new { x.MaND, x.MaCT });
                     table.ForeignKey(
-                        name: "FK_CTDaLuu_CongThuc_CongThucMaCT",
-                        column: x => x.CongThucMaCT,
+                        name: "FK_CTDaLuu_CongThuc_MaCT",
+                        column: x => x.MaCT,
                         principalTable: "CongThuc",
                         principalColumn: "MaCT",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CTDaLuu_NguoiDung_NguoiDungMaND",
-                        column: x => x.NguoiDungMaND,
+                        name: "FK_CTDaLuu_NguoiDung_MaND",
+                        column: x => x.MaND,
                         principalTable: "NguoiDung",
                         principalColumn: "MaND",
                         onDelete: ReferentialAction.Cascade);
@@ -295,22 +331,20 @@ namespace Foodify_DoAn.Migrations
                 columns: table => new
                 {
                     MaND = table.Column<int>(type: "integer", nullable: false),
-                    MaCT = table.Column<int>(type: "integer", nullable: false),
-                    NguoiDungMaND = table.Column<int>(type: "integer", nullable: false),
-                    CongThucMaCT = table.Column<int>(type: "integer", nullable: false)
+                    MaCT = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CTDaThich", x => new { x.MaND, x.MaCT });
                     table.ForeignKey(
-                        name: "FK_CTDaThich_CongThuc_CongThucMaCT",
-                        column: x => x.CongThucMaCT,
+                        name: "FK_CTDaThich_CongThuc_MaCT",
+                        column: x => x.MaCT,
                         principalTable: "CongThuc",
                         principalColumn: "MaCT",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CTDaThich_NguoiDung_NguoiDungMaND",
-                        column: x => x.NguoiDungMaND,
+                        name: "FK_CTDaThich_NguoiDung_MaND",
+                        column: x => x.MaND,
                         principalTable: "NguoiDung",
                         principalColumn: "MaND",
                         onDelete: ReferentialAction.Cascade);
@@ -347,84 +381,25 @@ namespace Foodify_DoAn.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "TheoDoi",
-                columns: table => new
-                {
-                    Following_ID = table.Column<int>(type: "integer", nullable: false),
-                    Followed_ID = table.Column<int>(type: "integer", nullable: false),
-                    FollowerMaND = table.Column<int>(type: "integer", nullable: false),
-                    FollowedMaND = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TheoDoi", x => new { x.Following_ID, x.Followed_ID });
-                    table.ForeignKey(
-                        name: "FK_TheoDoi_NguoiDung_FollowedMaND",
-                        column: x => x.FollowedMaND,
-                        principalTable: "NguoiDung",
-                        principalColumn: "MaND",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TheoDoi_NguoiDung_FollowerMaND",
-                        column: x => x.FollowerMaND,
-                        principalTable: "NguoiDung",
-                        principalColumn: "MaND",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ThongBao",
-                columns: table => new
-                {
-                    MaTB = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    MaND = table.Column<int>(type: "integer", nullable: false),
-                    NoiDung = table.Column<string>(type: "text", nullable: false),
-                    DaXem = table.Column<bool>(type: "boolean", nullable: false),
-                    NgayTao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    NguoiDungMaND = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ThongBao", x => x.MaTB);
-                    table.ForeignKey(
-                        name: "FK_ThongBao_NguoiDung_NguoiDungMaND",
-                        column: x => x.NguoiDungMaND,
-                        principalTable: "NguoiDung",
-                        principalColumn: "MaND",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            migrationBuilder.CreateIndex(
+                name: "IX_CongThuc_MaND",
+                table: "CongThuc",
+                column: "MaND");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CTCongThuc_CongThucMaCT",
+                name: "IX_CTCongThuc_MaNL",
                 table: "CTCongThuc",
-                column: "CongThucMaCT");
+                column: "MaNL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CTCongThuc_NguyenLieuMaNL",
-                table: "CTCongThuc",
-                column: "NguyenLieuMaNL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CTDaLuu_CongThucMaCT",
+                name: "IX_CTDaLuu_MaCT",
                 table: "CTDaLuu",
-                column: "CongThucMaCT");
+                column: "MaCT");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CTDaLuu_NguoiDungMaND",
-                table: "CTDaLuu",
-                column: "NguoiDungMaND");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CTDaThich_CongThucMaCT",
+                name: "IX_CTDaThich_MaCT",
                 table: "CTDaThich",
-                column: "CongThucMaCT");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CTDaThich_NguoiDungMaND",
-                table: "CTDaThich",
-                column: "NguoiDungMaND");
+                column: "MaCT");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DanhGia_CongThucMaCT",
@@ -469,24 +444,9 @@ namespace Foodify_DoAn.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TaiKhoan_VaiTro_TaiKhoanId",
-                table: "TaiKhoan_VaiTro",
-                column: "TaiKhoanId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TaiKhoan_VaiTro_VaiTroId",
-                table: "TaiKhoan_VaiTro",
-                column: "VaiTroId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TheoDoi_FollowedMaND",
+                name: "IX_TheoDoi_Followed_ID",
                 table: "TheoDoi",
-                column: "FollowedMaND");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TheoDoi_FollowerMaND",
-                table: "TheoDoi",
-                column: "FollowerMaND");
+                column: "Followed_ID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ThongBao_NguoiDungMaND",
@@ -548,10 +508,10 @@ namespace Foodify_DoAn.Migrations
                 name: "CongThuc");
 
             migrationBuilder.DropTable(
-                name: "NguoiDung");
+                name: "VaiTro");
 
             migrationBuilder.DropTable(
-                name: "VaiTro");
+                name: "NguoiDung");
 
             migrationBuilder.DropTable(
                 name: "TaiKhoan");
