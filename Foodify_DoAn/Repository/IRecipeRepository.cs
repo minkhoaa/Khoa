@@ -9,7 +9,7 @@ namespace Foodify_DoAn.Repository
 
         public Task<CongThuc> getByID(int id);
 
-        public Task<CongThuc> addCongThuc(RecipeDto congthuc);
+        public Task<RecipeResultDto> addCongThuc(RecipeDto congthuc);
 
         public Task<CongThuc> updateCongThuc(int id, RecipeDto congthuc);
 

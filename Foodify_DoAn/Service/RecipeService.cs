@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Castle.Core.Logging;
+using DotNetEnv;
 using Foodify_DoAn.Data;
 using Foodify_DoAn.Model;
 using Foodify_DoAn.Repository;
@@ -29,15 +30,23 @@ namespace Foodify_DoAn.Service
             _account = accountRepository;
         }
 
-        public async Task<CongThuc> addCongThuc( RecipeDto congthuc)
+        public async Task<RecipeResultDto> addCongThuc( RecipeDto congthuc)
         {
             if (string.IsNullOrEmpty(congthuc.token)) return null;
             var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = congthuc.token });
             if (user == null) return null;
 
+            var nguoiDung = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == user.Id);
+            if (nguoiDung == null) return null; 
+
+
             CongThuc recipe = new CongThuc();
              _dbMapper.Map(congthuc, recipe);
-            recipe.MaND = user.NguoiDung.MaND;
+            recipe.MaND = nguoiDung.MaND;
+            await _context.CongThucs.AddAsync(recipe);
+            await _context.SaveChangesAsync();
+
+            List<NguyenLieuDto> nguyenLieuList = new List<NguyenLieuDto>();
 
             foreach (var nl in congthuc.NguyenLieus)
             {
@@ -48,13 +57,26 @@ namespace Foodify_DoAn.Service
                     DinhLuong = nl.DinhLuong,
                     DonViTinh = nl.DonViTinh
                 };
-               await _context.CTCongThucs.AddAsync(CtCongThuc);
+                await _context.CTCongThucs.AddAsync(CtCongThuc);
+
+                nguyenLieuList.Add(new NguyenLieuDto
+                {
+                    MaNL = nl.MaNL,
+                    DinhLuong = nl.DinhLuong,
+                    DonViTinh = nl.DonViTinh
+                });
             }
 
-            await _context.CongThucs.AddAsync(recipe);
-           
             await _context.SaveChangesAsync();
-            return recipe; 
+
+            var result = new RecipeResultDto
+            {
+                MaCT = recipe.MaCT,
+                TenCT = recipe.TenCT,
+                NguyenLieus = nguyenLieuList
+            };
+
+            return result;
         }
 
         public async Task<bool> deleteCongThuc(int id)

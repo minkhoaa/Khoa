@@ -20,4 +20,4 @@ ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
 # File khởi chạy
-ENTRYPOINT ["dotnet", Foodify_DoAn.dll"]
+ENTRYPOINT ["dotnet", "Foodify_DoAn.dll"]
