@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Foodify_DoAn.Migrations
 {
     [DbContext(typeof(FoodifyContext))]
-    [Migration("20250429102412_addDb")]
-    partial class addDb
+    [Migration("20250429105334_dbContext")]
+    partial class dbContext
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -78,13 +78,17 @@ namespace Foodify_DoAn.Migrations
 
             modelBuilder.Entity("Foodify_DoAn.Data.Comment", b =>
                 {
-                    b.Property<int>("MaND")
-                        .HasColumnType("integer")
-                        .HasColumnOrder(0);
+                    b.Property<int>("MaComment")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MaComment"));
 
                     b.Property<int>("MaBaiViet")
-                        .HasColumnType("integer")
-                        .HasColumnOrder(1);
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MaND")
+                        .HasColumnType("integer");
 
                     b.Property<string>("NoiDung")
                         .IsRequired()
@@ -93,9 +97,11 @@ namespace Foodify_DoAn.Migrations
                     b.Property<DateTime>("ThoiGian")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("MaND", "MaBaiViet");
+                    b.HasKey("MaComment");
 
                     b.HasIndex("MaBaiViet");
+
+                    b.HasIndex("MaND");
 
                     b.ToTable("Comment", (string)null);
                 });

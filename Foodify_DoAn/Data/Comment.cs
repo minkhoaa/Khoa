@@ -5,10 +5,14 @@ namespace Foodify_DoAn.Data
 {
     public class Comment
     {
-        [Key, Column(Order = 0)]
+
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int MaComment { get; set; }
+        [Required]
         public int MaND { get; set; } // Mã người dùng
 
-        [Key, Column(Order = 1)]
+        [Required]
         public int MaBaiViet { get; set; } // Mã bài viết
 
         [Required]

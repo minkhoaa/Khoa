@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Castle.Components.DictionaryAdapter.Xml;
 using Castle.Core.Logging;
 using DotNetEnv;
 using Foodify_DoAn.Data;
@@ -204,10 +205,28 @@ namespace Foodify_DoAn.Service
             return true;
     
         }
-        public async Task<bool> CommentCongThuc(CommentPostDto dto)
+        public async Task<bool> CommentCongThuc(CommentPostDto comments)
         {
-            throw new NotImplementedException();
+            var account = await _account.AuthenticationAsync(new TokenModel { AccessToken = comments.like_share.token });
 
+            if (account == null) return false;
+
+            var post = await _context.CongThucs.FirstOrDefaultAsync(x => x.MaCT == comments.like_share.IdCongThuc);
+
+            if (post == null) return false;
+
+            var user = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == account.Id);
+            if (user == null) return false;
+
+            var comment = new Comment
+            {
+                MaND = user.MaND,
+                MaBaiViet = post.MaCT,
+                NoiDung = comments.Comment,
+                ThoiGian = DateTime.UtcNow
+            };
+            await _context.Comments.AddAsync(comment);
+            return true;
         }
 
         public async Task<bool> ShareCongThuc(Like_Share_GetOnePostDto dto)

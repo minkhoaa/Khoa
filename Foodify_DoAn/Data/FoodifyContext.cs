@@ -23,6 +23,8 @@ public class FoodifyContext : IdentityDbContext<
     public DbSet<CTDaThich> CTDaThichs { get; set; }
     public DbSet<TheoDoi> TheoDois { get; set; }
     public DbSet<ThongBao> ThongBaos { get; set; }
+
+    public DbSet<Comment> Comments { get; set; }
   
 
 
@@ -50,7 +52,7 @@ public class FoodifyContext : IdentityDbContext<
 
         builder.Entity<Comment>().ToTable("Comment");
 
-        builder.Entity<Comment>().HasKey(x => new { x.MaND, x.MaBaiViet });
+        builder.Entity<Comment>().HasKey(x => x.MaComment);
 
 
         builder.Entity<ThongBao>()

@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Foodify_DoAn.Migrations
 {
     /// <inheritdoc />
-    public partial class addDb : Migration
+    public partial class dbContext : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -280,6 +280,8 @@ namespace Foodify_DoAn.Migrations
                 name: "Comment",
                 columns: table => new
                 {
+                    MaComment = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     MaND = table.Column<int>(type: "integer", nullable: false),
                     MaBaiViet = table.Column<int>(type: "integer", nullable: false),
                     NoiDung = table.Column<string>(type: "text", nullable: false),
@@ -287,7 +289,7 @@ namespace Foodify_DoAn.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Comment", x => new { x.MaND, x.MaBaiViet });
+                    table.PrimaryKey("PK_Comment", x => x.MaComment);
                     table.ForeignKey(
                         name: "FK_Comment_CongThuc_MaBaiViet",
                         column: x => x.MaBaiViet,
@@ -411,6 +413,11 @@ namespace Foodify_DoAn.Migrations
                 name: "IX_Comment_MaBaiViet",
                 table: "Comment",
                 column: "MaBaiViet");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comment_MaND",
+                table: "Comment",
+                column: "MaND");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CongThuc_MaND",
