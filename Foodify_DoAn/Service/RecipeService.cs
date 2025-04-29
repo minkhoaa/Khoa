@@ -92,80 +92,66 @@ namespace Foodify_DoAn.Service
 
         public async Task<List<PostResultDto>> getAllCongThucs(RecipeRequestDto recipe)
         {
-         
-            if (string.IsNullOrEmpty(recipe.Token)) return await _context.CongThucs.OrderByDescending(x => x.NgayCapNhat).Skip((recipe.PageNumber - 1) * recipe.PageSize)
-                    .Take(recipe.PageSize)
-                     .Select(c => new PostResultDto
-                     {
-                         TenCT = c.TenCT,
-                         MoTaCT = c.MoTaCT,
-                         TongCalories = c.TongCalories,
-                         AnhCT = c.AnhCT,
-                         LuotXem = c.LuotXem,
-                         LuotLuu = c.LuotLuu,
-                         LuotThich = c.LuotThich
-                     })
-                    .ToListAsync();
+            if (recipe == null)
+                throw new ArgumentNullException(nameof(recipe));
 
-            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = recipe.Token });
-            if (user == null) return await _context.CongThucs.OrderByDescending(x => x.NgayCapNhat).Skip((recipe.PageNumber - 1) * recipe.PageSize)
-                    .Take(recipe.PageSize)
-                      .Select(c => new PostResultDto
-                      {
-                          TenCT = c.TenCT,
-                          MoTaCT = c.MoTaCT,
-                          TongCalories = c.TongCalories,
-                          AnhCT = c.AnhCT,
-                          LuotXem = c.LuotXem,
-                          LuotLuu = c.LuotLuu,
-                          LuotThich = c.LuotThich
-                      })
-                    .ToListAsync();
+            int skip = (recipe.PageNumber - 1) * recipe.PageSize;
+            int take = recipe.PageSize;
 
-            var followingUser = await _context.TheoDois.Where(x => x.Following_ID == user.Id).Select(a => a.Followed_ID).ToListAsync();
+            // Authenticate user once
+            var user = string.IsNullOrEmpty(recipe.Token)
+                ? null
+                : await _account.AuthenticationAsync(new TokenModel { AccessToken = recipe.Token });
 
-            var recipes = await _context.CongThucs
-                     .OrderByDescending(c => followingUser.Contains(c.MaND))
-                     .ThenByDescending(c => c.NgayCapNhat)
-                     .Skip((recipe.PageNumber - 1) * recipe.PageSize)
-                     .Take(recipe.PageSize)
-                     .ToListAsync();
+            List<int> followingUserIds = new();
 
-            List<PostResultDto> recipeDtos = new List<PostResultDto>();
-            foreach (var c in recipes)
+            if (user != null)
             {
-                var tacGia = await _context.NguoiDungs.Where(x => x.MaND == c.MaND).Select(x => new NguoiDungDto { 
-                    MaND = x.MaND ,
-                    MaTK = x.MaTK,
-                    TenND = x.TenND,
-                    GioiTinh = x.GioiTinh, 
-                    NgaySinh = x.NgaySinh, 
-                    TieuSu = x.TieuSu, 
-                    SDT = x.SDT, 
-                    Email = x.Email, 
-                    DiaChi = x.DiaChi, 
-                    LuotTheoDoi = x.LuotTheoDoi, 
-                    AnhDaiDien = x.AnhDaiDien
-
-                }).FirstOrDefaultAsync();
-                var rcpDto = new PostResultDto
-                {
-                    TenCT = c.TenCT,
-                    MoTaCT = c.MoTaCT,
-                    TongCalories = c.TongCalories,
-                    AnhCT = c.AnhCT,
-                    LuotXem = c.LuotXem,
-                    LuotLuu = c.LuotLuu,
-                    LuotThich = c.LuotThich,
-                    TacGia = tacGia
-                };
-                recipeDtos.Add(rcpDto);
+                followingUserIds = await _context.TheoDois
+                    .Where(x => x.Following_ID == user.Id)
+                    .Select(a => a.Followed_ID)
+                    .ToListAsync();
             }
 
+            // Query recipes along with their authors
+            var recipeDtos = await _context.CongThucs
+                .Join(_context.NguoiDungs,
+                    ct => ct.MaND,
+                    nd => nd.MaND,
+                    (ct, nd) => new { CongThuc = ct, TacGia = nd })
+                .OrderByDescending(x => followingUserIds.Contains(x.CongThuc.MaND))
+                .ThenByDescending(x => x.CongThuc.NgayCapNhat)
+                .Skip(skip)
+                .Take(take)
+                .Select(x => new PostResultDto
+                {
+                    TenCT = x.CongThuc.TenCT,
+                    MoTaCT = x.CongThuc.MoTaCT,
+                    TongCalories = x.CongThuc.TongCalories,
+                    AnhCT = x.CongThuc.AnhCT,
+                    LuotXem = x.CongThuc.LuotXem,
+                    LuotLuu = x.CongThuc.LuotLuu,
+                    LuotThich = x.CongThuc.LuotThich,
+                    TacGia = new NguoiDungDto
+                    {
+                        MaND = x.TacGia.MaND,
+                        MaTK = x.TacGia.MaTK,
+                        TenND = x.TacGia.TenND,
+                        GioiTinh = x.TacGia.GioiTinh,
+                        NgaySinh = x.TacGia.NgaySinh,
+                        TieuSu = x.TacGia.TieuSu,
+                        SDT = x.TacGia.SDT,
+                        Email = x.TacGia.Email,
+                        DiaChi = x.TacGia.DiaChi,
+                        LuotTheoDoi = x.TacGia.LuotTheoDoi,
+                        AnhDaiDien = x.TacGia.AnhDaiDien
+                    }
+                })
+                .ToListAsync();
+
             return recipeDtos;
-
-
         }
+
 
         public async Task<CongThuc> getByID(int id)
         {
