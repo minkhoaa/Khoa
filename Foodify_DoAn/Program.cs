@@ -57,6 +57,8 @@ builder.Services.AddScoped<INguyenLieuRepository, NguyenLieuService>();
 
 builder.Services.AddScoped<IUploadImageRepository, UploadImageService>();
 
+builder.Services.AddScoped<INguoiDungRepository, NguoiDungService>();
+
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
 builder.Services.AddSingleton(option => {

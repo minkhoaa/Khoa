@@ -1,8 +1,11 @@
 ﻿using Foodify_DoAn.Data;
+using Foodify_DoAn.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters.Xml;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
+using StackExchange.Redis;
 
 namespace Foodify_DoAn.Controllers
 {
@@ -11,16 +14,27 @@ namespace Foodify_DoAn.Controllers
     public class NguoiDungController : ControllerBase
     {
         public readonly FoodifyContext _context;
-        public NguoiDungController(FoodifyContext context )
+
+        private readonly INguoiDungRepository _nguoiDungRepo; 
+        public NguoiDungController(FoodifyContext context, INguoiDungRepository repository )
         {
+            _nguoiDungRepo = repository; 
             _context = context;
         }
 
-        [HttpGet]
-        public async  Task<IActionResult> getAllNguoiDungs()
+        [HttpPost("getAll")]
+        public async  Task<IActionResult> getAllNguoiDungs([FromBody]string token)
         {
-            var users = await _context.NguoiDungs.ToListAsync();
-            return  Ok(users);
+            var result = await _nguoiDungRepo.getAllNguoiDung( token);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
+        [HttpPost("getAllThongBao")]
+        public async Task<IActionResult> getAllThongBao([FromBody]string token)
+        {
+            var result = await _nguoiDungRepo.getAllThongBao(token);
+            if (result == null) return NotFound();
+            return Ok(result);
         }
     }
 }
