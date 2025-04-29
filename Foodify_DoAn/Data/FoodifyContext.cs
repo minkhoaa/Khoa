@@ -1,5 +1,6 @@
 ﻿using Foodify_DoAn.Data;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 
 public class FoodifyContext : IdentityDbContext<
@@ -24,6 +25,7 @@ public class FoodifyContext : IdentityDbContext<
     public DbSet<TheoDoi> TheoDois { get; set; }
     public DbSet<ThongBao> ThongBaos { get; set; }
 
+    public DbSet<CtDaShare> CtDaShares { get; set; }
     public DbSet<Comment> Comments { get; set; }
   
 
@@ -51,6 +53,19 @@ public class FoodifyContext : IdentityDbContext<
         builder.Entity<ThongBao>().ToTable("ThongBao");
 
         builder.Entity<Comment>().ToTable("Comment");
+        builder.Entity<CtDaShare>().ToTable("CtDaShare");
+        builder.Entity<CtDaShare>().HasKey(x => x.MaShare);
+
+        builder.Entity<CtDaShare>()
+          .HasOne(dl => dl.NguoiDung)
+          .WithMany(nd => nd.CtDaShare)
+          .HasForeignKey(dl => dl.MaND);
+
+        builder.Entity<CtDaShare>()
+            .HasOne(dl => dl.CongThuc)
+            .WithMany(ct => ct.CtDaShares)
+            .HasForeignKey(dl => dl.MaCT);
+
 
         builder.Entity<Comment>().HasKey(x => x.MaComment);
 

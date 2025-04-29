@@ -308,8 +308,15 @@ namespace Foodify_DoAn.Service
             var user = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == account.Id);
             if (user == null) return false;
 
-          
-            post.LuotThich++;
+            var sharedRecipe = new CtDaShare
+            {
+                MaCT = post.MaCT,
+                MaND = user.MaND,
+                ThoiGian = DateTime.UtcNow
+            };
+            await _context.CtDaShares.AddAsync(sharedRecipe);
+
+            post.LuotXem++;
             post.LuotShare++; 
 
             var thongBao = new ThongBao()
