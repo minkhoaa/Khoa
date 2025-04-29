@@ -21,10 +21,10 @@ namespace Foodify_DoAn.Controllers
         }
 
         [HttpPost("getAll")]
-        public async Task<IActionResult> getAllCongthucs([FromBody]RecipeRequestDto recipe)
+        public async Task<IActionResult> getAllCongthucs([FromBody] RecipeRequestDto recipe)
         {
-             var congthucs = await _repository.getAllCongThucs(recipe);
-                
+            var congthucs = await _repository.getAllCongThucs(recipe);
+
             return Ok(congthucs);
         }
         [HttpGet("{id}")]
@@ -36,12 +36,12 @@ namespace Foodify_DoAn.Controllers
         }
 
         [HttpPost("addcongthuc")]
-        public async Task<IActionResult> addCongThuc( [FromBody]RecipeDto recipe)
+        public async Task<IActionResult> addCongThuc([FromBody] RecipeDto recipe)
         {
             var congthuc = await _repository.addCongThuc(recipe);
             if (congthuc == null) return NotFound("không thể thêm công thức, vui lòng đăng nhập");
             return Ok(congthuc);
-    
+
         }
 
         [HttpPut("updatecongthuc")]
@@ -56,7 +56,7 @@ namespace Foodify_DoAn.Controllers
         {
             var congthuc = await _repository.deleteCongThuc(id);
             if (congthuc == false) return NotFound("Không thể xóa công thức");
-            return Ok(congthuc); 
+            return Ok(congthuc);
         }
         [HttpPost("LikePost")]
         public async Task<IActionResult> likePost(Like_Share_GetOnePostDto dto)
@@ -65,5 +65,30 @@ namespace Foodify_DoAn.Controllers
             if (result == false) return NotFound("Các thông tin không tồn tại");
             return Ok("Like thành công");
         }
+
+        [HttpPost("CommentPost")]
+        public async Task<IActionResult> commmentPost(CommentPostDto commentPostDto)
+        {
+            var result = await _repository.CommentCongThuc(commentPostDto);
+            if (result == false) return NotFound("Các thông tin không tồn tại");
+            return Ok("Comment thành công");
+
+        }
+        [HttpPost("ShareCongthuc")]
+        public async Task<IActionResult> sharePost(Like_Share_GetOnePostDto like_Share_GetOnePostDto)
+        {
+            var result = await _repository.ShareCongThuc(like_Share_GetOnePostDto);
+            if (result == false) return NotFound("Thông tin không tồn tại");
+            return Ok("Share thành công "); 
+        }
+        [HttpPost("getDetailedPost")]
+
+        public async Task<IActionResult> getDetailedPosts(Like_Share_GetOnePostDto like_Share_GetOnePostDto)
+        {
+            var result = await _repository.GetOnePostInDetail(like_Share_GetOnePostDto);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
     }
-}
+    }
+ 

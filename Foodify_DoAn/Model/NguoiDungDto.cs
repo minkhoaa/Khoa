@@ -5,7 +5,6 @@ namespace Foodify_DoAn.Model
     public class NguoiDungDto
     {
         [Key]
-        public int MaND { get; set; }
         public int MaTK { get; set; }
         public string TenND { get; set; }
         public bool? GioiTinh { get; set; }

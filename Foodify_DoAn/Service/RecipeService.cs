@@ -11,9 +11,11 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualBasic;
 using Npgsql.PostgresTypes;
 using Npgsql.Replication;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Mail;
+using System.Net.NetworkInformation;
 using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
 
@@ -138,7 +140,7 @@ namespace Foodify_DoAn.Service
                     LuotThich = x.CongThuc.LuotThich,
                     TacGia = new NguoiDungDto
                     {
-                        MaND = x.TacGia.MaND,
+                       
                         MaTK = x.TacGia.MaTK,
                         TenND = x.TacGia.TenND,
                         GioiTinh = x.TacGia.GioiTinh,
@@ -164,9 +166,60 @@ namespace Foodify_DoAn.Service
             return recipe;
         }
 
-        public Task<bool> GetOnePostInDetail(Like_Share_GetOnePostDto dto)
+        public async Task<PostAndCommentsDto> GetOnePostInDetail(Like_Share_GetOnePostDto request)
         {
-            throw new NotImplementedException();
+            var account = await _account.AuthenticationAsync(new TokenModel { AccessToken = request.token });
+
+            if (account == null) return null!;
+
+            var post = await _context.CongThucs.FirstOrDefaultAsync(x => x.MaCT == request.IdCongThuc);
+
+            if (post == null) return null!;
+
+
+            var user = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == account.Id);
+            if (user == null) return null!;
+
+            var listUserComment = await _context.Comments
+                .Where(x => x.MaBaiViet == post.MaCT)
+                .Select(x => new { x.MaND, x.ThoiGian, x.NoiDung }) // Use 'new' keyword to create an anonymous object
+                .ToListAsync();
+            List<CommentResultDto> commentResultDtos = new List<CommentResultDto>();
+
+            foreach (var info in listUserComment)
+            {
+                var userInfo = await _context.NguoiDungs.Where(x => x.MaND == info.MaND).Select(x => new NguoiDungCommentDto
+                {
+                    AnhDaiDien = x.AnhDaiDien,
+                    TenND = x.TenND
+                }).FirstOrDefaultAsync();
+                commentResultDtos.Add(new CommentResultDto
+                {
+                    tacgia = userInfo,
+                    NgayBinhLuan = info.ThoiGian,
+                    NoiDung = info.NoiDung
+                });
+            }
+
+            return new PostAndCommentsDto
+            {
+                post = new PostResultDto
+                {
+
+                    TenCT = post.TenCT,
+                    MoTaCT = post.MoTaCT,
+                    TongCalories = post.TongCalories,
+                    AnhCT = post.AnhCT,
+                    LuotXem = post.LuotXem,
+                    LuotLuu = post.LuotLuu,
+                    LuotThich = post.LuotThich
+
+                },
+
+                comments = commentResultDtos
+
+
+            };
         }
 
         public async Task<bool> LikeCongThuc(Like_Share_GetOnePostDto dto)
@@ -195,7 +248,7 @@ namespace Foodify_DoAn.Service
             var thongBao = new ThongBao()
             {
                 MaND = post.MaND,
-                NoiDung = $"{user.TenND} vừa thích bài viết về {post.TenCT} của bạn",
+                NoiDung = $"{user.TenND} vừa thích bài viết của bạn",
                 DaXem = false,
                 NgayTao = DateTime.UtcNow,
             };
@@ -226,6 +279,19 @@ namespace Foodify_DoAn.Service
                 ThoiGian = DateTime.UtcNow
             };
             await _context.Comments.AddAsync(comment);
+
+            var thongBao = new ThongBao
+            {
+                MaND = post.MaND,
+                NoiDung = $"{user.TenND} đã bình luận về bài viết của bạn",
+                NgayTao = DateTime.UtcNow,
+                DaXem = false
+            };
+
+            await _context.ThongBaos.AddAsync(thongBao);
+            await _context.SaveChangesAsync(); 
+
+
             return true;
         }
 
@@ -242,15 +308,14 @@ namespace Foodify_DoAn.Service
             var user = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == account.Id);
             if (user == null) return false;
 
-           
-
-           
+          
             post.LuotThich++;
+            post.LuotShare++; 
 
             var thongBao = new ThongBao()
             {
                 MaND = post.MaND,
-                NoiDung = $"{user.TenND} vừa thích bài viết về {post.TenCT} của bạn",
+                NoiDung = $"{user.TenND} vừa chia sẻ bài viết của bạn",
                 DaXem = false,
                 NgayTao = DateTime.UtcNow,
             };

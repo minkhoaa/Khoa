@@ -24,7 +24,7 @@ namespace Foodify_DoAn.Repository
         public Task<bool> CommentCongThuc(CommentPostDto dto);
         public Task<bool> ShareCongThuc(Like_Share_GetOnePostDto dto);
 
-        public Task<bool> GetOnePostInDetail(Like_Share_GetOnePostDto dto); 
+        public Task<PostAndCommentsDto> GetOnePostInDetail(Like_Share_GetOnePostDto dto); 
 
         
     }
