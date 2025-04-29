@@ -27,6 +27,8 @@ builder.Services.AddEndpointsApiExplorer();
 
 DotNetEnv.Env.Load();
 
+
+
 builder.Services.AddCors(option => option.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
 builder.Configuration["ConnectionStrings:MyDB"] = Environment.GetEnvironmentVariable("CONNECTIONSTRINGS__MYDB");
@@ -111,8 +113,8 @@ builder.Services.AddSwaggerGen(option =>
 
     // Ánh xạ IFormFile thành string/binary
     option.MapType<IFormFile>(() => new OpenApiSchema
-    {
-        Type = "string",
+        {
+            Type = "string",
         Format = "binary"
     });
 

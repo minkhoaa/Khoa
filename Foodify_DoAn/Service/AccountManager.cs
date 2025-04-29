@@ -145,11 +145,9 @@ namespace Foodify_DoAn.Service
                 return false;
             }
         }
-
-
         public async Task<bool> SignUpWithOtpAsync(ConfirmOtp confirmOtp)
         {
-            if (!TempOtp.TryGetValue($"OTP_{confirmOtp.email}", out dynamic? cacheData)) return false;
+                if (!TempOtp.TryGetValue($"OTP_{confirmOtp.email}", out dynamic? cacheData)) return false;
 
             if (cacheData.Otp != confirmOtp.otp) return false;
             var user = new TaiKhoan

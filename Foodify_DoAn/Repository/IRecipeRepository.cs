@@ -5,7 +5,7 @@ namespace Foodify_DoAn.Repository
 {
     public interface IRecipeRepository
     {
-        public Task<List<CongThuc>> getAllCongThucs(RecipeRequestDto recipe);
+        public Task<List<PostResultDto>> getAllCongThucs(RecipeRequestDto recipe);
 
         public Task<CongThuc> getByID(int id);
 

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualBasic;
+using Npgsql.PostgresTypes;
 using Npgsql.Replication;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -43,6 +44,7 @@ namespace Foodify_DoAn.Service
             CongThuc recipe = new CongThuc();
              _dbMapper.Map(congthuc, recipe);
             recipe.MaND = nguoiDung.MaND;
+            recipe.NguoiDung = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaND == nguoiDung.MaND);
             await _context.CongThucs.AddAsync(recipe);
             await _context.SaveChangesAsync();
 
@@ -88,26 +90,81 @@ namespace Foodify_DoAn.Service
             return true; 
         }
 
-        public async Task<List<CongThuc>> getAllCongThucs(RecipeRequestDto recipe)
+        public async Task<List<PostResultDto>> getAllCongThucs(RecipeRequestDto recipe)
         {
          
             if (string.IsNullOrEmpty(recipe.Token)) return await _context.CongThucs.OrderByDescending(x => x.NgayCapNhat).Skip((recipe.PageNumber - 1) * recipe.PageSize)
-                    .Take(recipe.PageSize).ToListAsync();
+                    .Take(recipe.PageSize)
+                     .Select(c => new PostResultDto
+                     {
+                         TenCT = c.TenCT,
+                         MoTaCT = c.MoTaCT,
+                         TongCalories = c.TongCalories,
+                         AnhCT = c.AnhCT,
+                         LuotXem = c.LuotXem,
+                         LuotLuu = c.LuotLuu,
+                         LuotThich = c.LuotThich
+                     })
+                    .ToListAsync();
 
             var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = recipe.Token });
             if (user == null) return await _context.CongThucs.OrderByDescending(x => x.NgayCapNhat).Skip((recipe.PageNumber - 1) * recipe.PageSize)
-                    .Take(recipe.PageSize).ToListAsync();
+                    .Take(recipe.PageSize)
+                      .Select(c => new PostResultDto
+                      {
+                          TenCT = c.TenCT,
+                          MoTaCT = c.MoTaCT,
+                          TongCalories = c.TongCalories,
+                          AnhCT = c.AnhCT,
+                          LuotXem = c.LuotXem,
+                          LuotLuu = c.LuotLuu,
+                          LuotThich = c.LuotThich
+                      })
+                    .ToListAsync();
 
             var followingUser = await _context.TheoDois.Where(x => x.Following_ID == user.Id).Select(a => a.Followed_ID).ToListAsync();
 
             var recipes = await _context.CongThucs
-            .OrderByDescending(c => followingUser.Contains(c.MaND)) 
-            .ThenByDescending(c => c.NgayCapNhat) 
-            .Skip((recipe.PageNumber - 1) * recipe.PageSize)
-            .Take(recipe.PageSize)
-             .ToListAsync();
+                     .OrderByDescending(c => followingUser.Contains(c.MaND))
+                     .ThenByDescending(c => c.NgayCapNhat)
+                     .Skip((recipe.PageNumber - 1) * recipe.PageSize)
+                     .Take(recipe.PageSize)
+                     .ToListAsync();
 
-            return recipes;
+            List<PostResultDto> recipeDtos = new List<PostResultDto>();
+            foreach (var c in recipes)
+            {
+                var tacGia = await _context.NguoiDungs.Where(x => x.MaND == c.MaND).Select(x => new NguoiDungDto { 
+                    MaND = x.MaND ,
+                    MaTK = x.MaTK,
+                    TenND = x.TenND,
+                    GioiTinh = x.GioiTinh, 
+                    NgaySinh = x.NgaySinh, 
+                    TieuSu = x.TieuSu, 
+                    SDT = x.SDT, 
+                    Email = x.Email, 
+                    DiaChi = x.DiaChi, 
+                    LuotTheoDoi = x.LuotTheoDoi, 
+                    AnhDaiDien = x.AnhDaiDien
+
+                }).FirstOrDefaultAsync();
+                var rcpDto = new PostResultDto
+                {
+                    TenCT = c.TenCT,
+                    MoTaCT = c.MoTaCT,
+                    TongCalories = c.TongCalories,
+                    AnhCT = c.AnhCT,
+                    LuotXem = c.LuotXem,
+                    LuotLuu = c.LuotLuu,
+                    LuotThich = c.LuotThich,
+                    TacGia = tacGia
+                };
+                recipeDtos.Add(rcpDto);
+            }
+
+            return recipeDtos;
+
+
         }
 
         public async Task<CongThuc> getByID(int id)

@@ -21,7 +21,7 @@ namespace Foodify_DoAn.Data
         public ICollection<CTDaLuu> CTDaLuus { get; set; }
         public ICollection<CTDaThich> CTDaThichs { get; set; }
 
-        public NguoiDung NguoiDung { get; set; }
+        public NguoiDung NguoiDung { get; set; } = null!;
     }
 
 }
