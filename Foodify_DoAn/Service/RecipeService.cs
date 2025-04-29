@@ -13,6 +13,7 @@ using Npgsql.Replication;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Mail;
+using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
 
 namespace Foodify_DoAn.Service
@@ -80,6 +81,8 @@ namespace Foodify_DoAn.Service
 
             return result;
         }
+
+   
 
         public async Task<bool> deleteCongThuc(int id)
         {
@@ -158,6 +161,85 @@ namespace Foodify_DoAn.Service
             var recipe = await _context.CongThucs.FindAsync(id);
             if (recipe == null) return null!;
             return recipe;
+        }
+
+        public Task<bool> GetOnePostInDetail(Like_Share_GetOnePostDto dto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> LikeCongThuc(Like_Share_GetOnePostDto dto)
+        {
+            var account = await _account.AuthenticationAsync(new TokenModel { AccessToken = dto.token });
+
+            if (account == null) return false;
+
+            var post = await _context.CongThucs.FirstOrDefaultAsync(x => x.MaCT == dto.IdCongThuc);
+
+            if (post == null) return false;
+
+            var user = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == account.Id);
+            if (user == null) return false;
+
+            var likedPost = new CTDaThich
+            {
+                MaCT = dto.IdCongThuc,
+                MaND = user.MaND
+            };
+
+            await _context.CTDaThichs.AddAsync(likedPost);
+            post.LuotThich++;
+            post.LuotXem++; 
+
+            var thongBao = new ThongBao()
+            {
+                MaND = post.MaND,
+                NoiDung = $"{user.TenND} vừa thích bài viết về {post.TenCT} của bạn",
+                DaXem = false,
+                NgayTao = DateTime.UtcNow,
+            };
+            await _context.ThongBaos.AddAsync(thongBao);
+
+            await _context.SaveChangesAsync();
+            return true;
+    
+        }
+        public async Task<bool> CommentCongThuc(CommentPostDto dto)
+        {
+            throw new NotImplementedException();
+
+        }
+
+        public async Task<bool> ShareCongThuc(Like_Share_GetOnePostDto dto)
+        {
+            var account = await _account.AuthenticationAsync(new TokenModel { AccessToken = dto.token });
+
+            if (account == null) return false;
+
+            var post = await _context.CongThucs.FirstOrDefaultAsync(x => x.MaCT == dto.IdCongThuc);
+
+            if (post == null) return false;
+
+            var user = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == account.Id);
+            if (user == null) return false;
+
+           
+
+           
+            post.LuotThich++;
+
+            var thongBao = new ThongBao()
+            {
+                MaND = post.MaND,
+                NoiDung = $"{user.TenND} vừa thích bài viết về {post.TenCT} của bạn",
+                DaXem = false,
+                NgayTao = DateTime.UtcNow,
+            };
+            await _context.ThongBaos.AddAsync(thongBao);
+
+            await _context.SaveChangesAsync();
+            return true;
+
         }
 
         public async Task<CongThuc> updateCongThuc(int id, RecipeDto congthuc)

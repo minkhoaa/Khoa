@@ -11,6 +11,7 @@ namespace Foodify_DoAn.Data
         public bool DaXem { get; set; }
         public DateTime NgayTao { get; set; }
 
+      
         public NguoiDung NguoiDung { get; set; }
     }
 }

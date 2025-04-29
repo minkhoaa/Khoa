@@ -48,6 +48,25 @@ public class FoodifyContext : IdentityDbContext<
         builder.Entity<TheoDoi>().ToTable("TheoDoi");
         builder.Entity<ThongBao>().ToTable("ThongBao");
 
+        builder.Entity<Comment>().ToTable("Comment");
+
+        builder.Entity<Comment>().HasKey(x => new { x.MaND, x.MaBaiViet });
+
+
+        builder.Entity<ThongBao>()
+            .HasOne(x => x.NguoiDung)
+            .WithMany(c => c.ThongBaos)
+            .HasForeignKey(z => z.MaND);
+        builder.Entity<Comment>()
+            .HasOne(x => x.NguoiDung)
+            .WithMany(c => c.Comments)
+            .HasForeignKey(c => c.MaND);
+
+        builder.Entity<Comment>()
+            .HasOne(x => x.CongThuc)
+            .WithMany(c => c.Comments)
+            .HasForeignKey(x => x.MaBaiViet);
+
         builder.Entity<NguoiDung>()
             .HasOne(nd => nd.TaiKhoan)
             .WithOne(tk => tk.NguoiDung)
@@ -124,8 +143,14 @@ public class FoodifyContext : IdentityDbContext<
             builder.Entity<CongThuc>()
         .HasOne(ct => ct.NguoiDung)
         .WithMany(nd => nd.CongThucs)
-        .HasForeignKey(ct => ct.MaND)
+        .HasForeignKey(ct => ct.MaND)   
         .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<ThongBao>()
+    .HasOne(tb => tb.NguoiDung)
+    .WithMany(nd => nd.ThongBaos)
+    .HasForeignKey(tb => tb.MaND)
+    .OnDelete(DeleteBehavior.Cascade); // hoặc Restrict tùy yêu cầu
 
     }
 

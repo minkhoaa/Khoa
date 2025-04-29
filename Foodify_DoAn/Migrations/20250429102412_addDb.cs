@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Foodify_DoAn.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateDbAddmand : Migration
+    public partial class addDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -215,7 +215,8 @@ namespace Foodify_DoAn.Migrations
                     LuotXem = table.Column<int>(type: "integer", nullable: false),
                     LuotLuu = table.Column<int>(type: "integer", nullable: false),
                     LuotThich = table.Column<int>(type: "integer", nullable: false),
-                    MaND = table.Column<int>(type: "integer", nullable: true),
+                    LuotShare = table.Column<int>(type: "integer", nullable: false),
+                    MaND = table.Column<int>(type: "integer", nullable: false),
                     NgayCapNhat = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -262,15 +263,40 @@ namespace Foodify_DoAn.Migrations
                     MaND = table.Column<int>(type: "integer", nullable: false),
                     NoiDung = table.Column<string>(type: "text", nullable: false),
                     DaXem = table.Column<bool>(type: "boolean", nullable: false),
-                    NgayTao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    NguoiDungMaND = table.Column<int>(type: "integer", nullable: false)
+                    NgayTao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ThongBao", x => x.MaTB);
                     table.ForeignKey(
-                        name: "FK_ThongBao_NguoiDung_NguoiDungMaND",
-                        column: x => x.NguoiDungMaND,
+                        name: "FK_ThongBao_NguoiDung_MaND",
+                        column: x => x.MaND,
+                        principalTable: "NguoiDung",
+                        principalColumn: "MaND",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Comment",
+                columns: table => new
+                {
+                    MaND = table.Column<int>(type: "integer", nullable: false),
+                    MaBaiViet = table.Column<int>(type: "integer", nullable: false),
+                    NoiDung = table.Column<string>(type: "text", nullable: false),
+                    ThoiGian = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Comment", x => new { x.MaND, x.MaBaiViet });
+                    table.ForeignKey(
+                        name: "FK_Comment_CongThuc_MaBaiViet",
+                        column: x => x.MaBaiViet,
+                        principalTable: "CongThuc",
+                        principalColumn: "MaCT",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Comment_NguoiDung_MaND",
+                        column: x => x.MaND,
                         principalTable: "NguoiDung",
                         principalColumn: "MaND",
                         onDelete: ReferentialAction.Cascade);
@@ -382,6 +408,11 @@ namespace Foodify_DoAn.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Comment_MaBaiViet",
+                table: "Comment",
+                column: "MaBaiViet");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CongThuc_MaND",
                 table: "CongThuc",
                 column: "MaND");
@@ -449,9 +480,9 @@ namespace Foodify_DoAn.Migrations
                 column: "Followed_ID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ThongBao_NguoiDungMaND",
+                name: "IX_ThongBao_MaND",
                 table: "ThongBao",
-                column: "NguoiDungMaND");
+                column: "MaND");
 
             migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
@@ -468,6 +499,9 @@ namespace Foodify_DoAn.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Comment");
+
             migrationBuilder.DropTable(
                 name: "CTCongThuc");
 

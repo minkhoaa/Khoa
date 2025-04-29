@@ -182,6 +182,8 @@ namespace Foodify_DoAn.Service
             };
 
             await foodifyContext.NguoiDungs.AddAsync(nguoiDung);
+
+            user.NguoiDung = nguoiDung;
             await foodifyContext.SaveChangesAsync();
 
             TempOtp.Remove($"OTP_{confirmOtp.email}");

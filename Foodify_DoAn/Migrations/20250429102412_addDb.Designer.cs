@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Foodify_DoAn.Migrations
 {
     [DbContext(typeof(FoodifyContext))]
-    [Migration("20250427053257_UpdateDbAddmand")]
-    partial class UpdateDbAddmand
+    [Migration("20250429102412_addDb")]
+    partial class addDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -76,6 +76,30 @@ namespace Foodify_DoAn.Migrations
                     b.ToTable("CTDaThich", (string)null);
                 });
 
+            modelBuilder.Entity("Foodify_DoAn.Data.Comment", b =>
+                {
+                    b.Property<int>("MaND")
+                        .HasColumnType("integer")
+                        .HasColumnOrder(0);
+
+                    b.Property<int>("MaBaiViet")
+                        .HasColumnType("integer")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("NoiDung")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ThoiGian")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("MaND", "MaBaiViet");
+
+                    b.HasIndex("MaBaiViet");
+
+                    b.ToTable("Comment", (string)null);
+                });
+
             modelBuilder.Entity("Foodify_DoAn.Data.CongThuc", b =>
                 {
                     b.Property<int>("MaCT")
@@ -91,13 +115,16 @@ namespace Foodify_DoAn.Migrations
                     b.Property<int>("LuotLuu")
                         .HasColumnType("integer");
 
+                    b.Property<int>("LuotShare")
+                        .HasColumnType("integer");
+
                     b.Property<int>("LuotThich")
                         .HasColumnType("integer");
 
                     b.Property<int>("LuotXem")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("MaND")
+                    b.Property<int>("MaND")
                         .HasColumnType("integer");
 
                     b.Property<string>("MoTaCT")
@@ -414,16 +441,13 @@ namespace Foodify_DoAn.Migrations
                     b.Property<DateTime>("NgayTao")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("NguoiDungMaND")
-                        .HasColumnType("integer");
-
                     b.Property<string>("NoiDung")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("MaTB");
 
-                    b.HasIndex("NguoiDungMaND");
+                    b.HasIndex("MaND");
 
                     b.ToTable("ThongBao", (string)null);
                 });
@@ -538,12 +562,32 @@ namespace Foodify_DoAn.Migrations
                     b.Navigation("NguoiDung");
                 });
 
+            modelBuilder.Entity("Foodify_DoAn.Data.Comment", b =>
+                {
+                    b.HasOne("Foodify_DoAn.Data.CongThuc", "CongThuc")
+                        .WithMany("Comments")
+                        .HasForeignKey("MaBaiViet")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Foodify_DoAn.Data.NguoiDung", "NguoiDung")
+                        .WithMany("Comments")
+                        .HasForeignKey("MaND")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CongThuc");
+
+                    b.Navigation("NguoiDung");
+                });
+
             modelBuilder.Entity("Foodify_DoAn.Data.CongThuc", b =>
                 {
                     b.HasOne("Foodify_DoAn.Data.NguoiDung", "NguoiDung")
                         .WithMany("CongThucs")
                         .HasForeignKey("MaND")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("NguoiDung");
                 });
@@ -647,7 +691,7 @@ namespace Foodify_DoAn.Migrations
                 {
                     b.HasOne("Foodify_DoAn.Data.NguoiDung", "NguoiDung")
                         .WithMany("ThongBaos")
-                        .HasForeignKey("NguoiDungMaND")
+                        .HasForeignKey("MaND")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -671,6 +715,8 @@ namespace Foodify_DoAn.Migrations
 
                     b.Navigation("CTDaThichs");
 
+                    b.Navigation("Comments");
+
                     b.Navigation("DanhGias");
                 });
 
@@ -679,6 +725,8 @@ namespace Foodify_DoAn.Migrations
                     b.Navigation("CTDaLuus");
 
                     b.Navigation("CTDaThichs");
+
+                    b.Navigation("Comments");
 
                     b.Navigation("CongThucs");
 

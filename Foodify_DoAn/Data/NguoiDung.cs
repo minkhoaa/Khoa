@@ -25,5 +25,7 @@ namespace Foodify_DoAn.Data
         public ICollection<TheoDoi> Followers { get; set; }
         public ICollection<TheoDoi> Followeds { get; set; }
         public ICollection<CongThuc> CongThucs { get; set; }
+
+        public ICollection<Comment> Comments { get; set;  }
     }
 }

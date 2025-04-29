@@ -58,5 +58,12 @@ namespace Foodify_DoAn.Controllers
             if (congthuc == false) return NotFound("Không thể xóa công thức");
             return Ok(congthuc); 
         }
+        [HttpPost("LikePost")]
+        public async Task<IActionResult> likePost(Like_Share_GetOnePostDto dto)
+        {
+            var result = await _repository.LikeCongThuc(dto);
+            if (result == false) return NotFound("Các thông tin không tồn tại");
+            return Ok("Like thành công");
+        }
     }
 }
