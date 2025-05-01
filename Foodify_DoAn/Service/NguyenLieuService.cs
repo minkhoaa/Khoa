@@ -15,6 +15,21 @@ namespace Foodify_DoAn.Service
             _account = account;
         }
 
+        public async Task<NguyenLieu> addNguyenLieu(NguyenLieuInputDto nguyenLieuDto)
+        {
+            if (nguyenLieuDto == null) return null;
+            var nguyenLieu =  new NguyenLieu()
+            {
+                TenNL = nguyenLieuDto.TenNL,
+                Calories = nguyenLieuDto.Calories,
+                AnhNL = nguyenLieuDto.AnhNL
+            };
+            await _context.NguyenLieus.AddAsync(nguyenLieu);
+            await _context.SaveChangesAsync();
+            return nguyenLieu;
+
+        }
+
         public async Task<List<NguyenLieu>> getAllNguyenLieu(string token)
         {
             if (string.IsNullOrEmpty(token)) return null;

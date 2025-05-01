@@ -1,4 +1,5 @@
-﻿using Foodify_DoAn.Repository;
+﻿using Foodify_DoAn.Model;
+using Foodify_DoAn.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +22,13 @@ namespace Foodify_DoAn.Controllers
             var result   = await nguyenLieuRepository.getAllNguyenLieu(token);
             if (result == null) return NotFound("Vui lòng đăng nhập");
             return Ok(result); 
+        }
+        [HttpPost("addnguyenlieu")]
+        public async Task<IActionResult> addNguyenLieu(NguyenLieuInputDto nguyenlieu)
+        {
+            var result = await nguyenLieuRepository.addNguyenLieu(nguyenlieu);
+            if (result == null) return BadRequest("Lỗi khi thêm nguyên liệu");
+            return Ok(result);
         }
     }
 }
