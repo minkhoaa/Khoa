@@ -121,10 +121,12 @@ namespace Foodify_DoAn.Service
 
             // Query recipes along with their authors
             var recipeDtos = await _context.CongThucs
+                .Include(ct => ct.CTCongThucs)
                 .Join(_context.NguoiDungs,
                     ct => ct.MaND,
                     nd => nd.MaND,
                     (ct, nd) => new { CongThuc = ct, TacGia = nd })
+
                 .OrderByDescending(x => followingUserIds.Contains(x.CongThuc.MaND))
                 .ThenByDescending(x => x.CongThuc.NgayCapNhat)
                 .Skip(skip)
@@ -140,7 +142,7 @@ namespace Foodify_DoAn.Service
                     LuotThich = x.CongThuc.LuotThich,
                     TacGia = new NguoiDungDto
                     {
-                       
+
                         MaTK = x.TacGia.MaTK,
                         TenND = x.TacGia.TenND,
                         GioiTinh = x.TacGia.GioiTinh,
@@ -151,7 +153,22 @@ namespace Foodify_DoAn.Service
                         DiaChi = x.TacGia.DiaChi,
                         LuotTheoDoi = x.TacGia.LuotTheoDoi,
                         AnhDaiDien = x.TacGia.AnhDaiDien
-                    }
+                    },
+                    NguyenLieus = x.CongThuc.CTCongThucs
+                    .Join(_context.NguyenLieus,
+                        ad => ad.MaNL,
+                        af => af.MaNL,
+                        (ad, af) => new { CTCongThuc = ad, NguyenLieu = af }
+                    )
+                    .Select(a => new NguyenLieuOutputDto
+                    {
+
+                        MaNL = a.NguyenLieu.MaNL,
+                        TenNL = a.NguyenLieu.TenNL,
+                        DinhLuong = a.CTCongThuc.DinhLuong,
+                        DonViTinh = a.CTCongThuc.DonViTinh
+
+                    }).ToList()
                 })
                 .ToListAsync();
 

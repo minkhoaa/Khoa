@@ -14,5 +14,7 @@ namespace Foodify_DoAn.Model
 
         public NguoiDungDto TacGia {get; set; }= null!;
 
+        public List<NguyenLieuOutputDto> NguyenLieus { get; set; }
+
     }
 }
