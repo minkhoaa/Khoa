@@ -1,4 +1,5 @@
-﻿using Foodify_DoAn.Model;
+﻿using Foodify_DoAn.Data;
+using Foodify_DoAn.Model;
 using Foodify_DoAn.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -79,7 +80,7 @@ namespace Foodify_DoAn.Controllers
         {
             var result = await _repository.ShareCongThuc(like_Share_GetOnePostDto);
             if (result == false) return NotFound("Thông tin không tồn tại");
-            return Ok("Share thành công "); 
+            return Ok("Share thành công ");
         }
         [HttpPost("getDetailedPost")]
 
@@ -95,8 +96,16 @@ namespace Foodify_DoAn.Controllers
         {
             var result = await _repository.GetAllUserAndSharedPost(token);
             if (result == null) return NotFound();
-            return Ok(result);  
+            return Ok(result);
+        }
+        [HttpPost("findPosts")]
+
+        public async Task<IActionResult> findPost(FindPostInputDto dto)
+        {
+            var result = await _repository.FindPost(dto);
+            if (result == null) return NotFound();
+            return Ok(result);
         }
     }
-    }
+}
  

@@ -8,6 +8,7 @@ using Foodify_DoAn.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Validations;
 using Microsoft.VisualBasic;
 using Npgsql.PostgresTypes;
 using Npgsql.Replication;
@@ -481,6 +482,32 @@ namespace Foodify_DoAn.Service
             return allPosts; 
         }
 
+        public async Task<List<CongThuc>> FindPost(FindPostInputDto dto)
+        {
+            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = dto.token });
+            if (user == null) return null!;
 
+           
+            var caloMin = dto.caloMin;
+            var caloMax = dto.caloMax;
+            var requiredMaNLs = dto.danhsachNguyenlieu;
+
+            var filteredMaCTs = await _context.CTCongThucs
+               .Where(ct => requiredMaNLs.Contains(ct.MaNL))
+               .GroupBy(ct => ct.MaCT)
+               .Where(g => requiredMaNLs.All(id => g.Select(x => x.MaNL).Contains(id)))
+               .Select(g => g.Key)
+               .ToListAsync();
+
+            // Truy vấn các công thức có đủ nguyên liệu và lọc theo calories
+            var listPosts = await _context.CongThucs
+                .Where(ct => filteredMaCTs.Contains(ct.MaCT) &&
+                             ct.TongCalories >= caloMin &&
+                             ct.TongCalories <= caloMax)
+                .ToListAsync();
+
+            return listPosts;
+
+        }
     }
 }
