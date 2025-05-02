@@ -365,6 +365,122 @@ namespace Foodify_DoAn.Service
 
             return recipe;
         }
-        
+
+        public async Task<List<PostResultDto>> GetAllUserAndSharedPost(string token)
+        {
+
+            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken= token});
+            if (user == null) return null;
+
+            var allUserPost = await _context.CongThucs
+                 .Include(ct => ct.CTCongThucs)
+                 .Where( a => a.MaND ==user.Id)
+                 .Join(_context.NguoiDungs,
+                     ct => ct.MaND,
+                     nd => nd.MaND,
+                     (ct, nd) => new { CongThuc = ct, TacGia = nd })
+
+                 
+                 .Select(x => new PostResultDto
+                 {
+                     MaCT = x.CongThuc.MaCT,
+                     TenCT = x.CongThuc.TenCT,
+                     MoTaCT = x.CongThuc.MoTaCT,
+                     TongCalories = x.CongThuc.TongCalories,
+                     AnhCT = x.CongThuc.AnhCT,
+                     LuotXem = x.CongThuc.LuotXem,
+                     LuotLuu = x.CongThuc.LuotLuu,
+                     LuotComment = _context.Comments.Where(a => a.MaBaiViet == x.CongThuc.MaCT).Count(),
+                     LuotThich = x.CongThuc.LuotThich,
+                     TacGia = new NguoiDungDto
+                     {
+
+                         MaTK = x.TacGia.MaTK,
+                         TenND = x.TacGia.TenND,
+                         GioiTinh = x.TacGia.GioiTinh,
+                         NgaySinh = x.TacGia.NgaySinh,
+                         TieuSu = x.TacGia.TieuSu,
+                         SDT = x.TacGia.SDT,
+                         Email = x.TacGia.Email,
+                         DiaChi = x.TacGia.DiaChi,
+                         LuotTheoDoi = x.TacGia.LuotTheoDoi,
+                         AnhDaiDien = x.TacGia.AnhDaiDien
+                     },
+                     NguyenLieus = x.CongThuc.CTCongThucs
+                     .Join(_context.NguyenLieus,
+                         ad => ad.MaNL,
+                         af => af.MaNL,
+                         (ad, af) => new { CTCongThuc = ad, NguyenLieu = af }
+                     )
+                     .Select(a => new NguyenLieuOutputDto
+                     {
+
+                         MaNL = a.NguyenLieu.MaNL,
+                         TenNL = a.NguyenLieu.TenNL,
+                         DinhLuong = a.CTCongThuc.DinhLuong,
+                         DonViTinh = a.CTCongThuc.DonViTinh
+
+                     }).ToList()
+                 })
+                 .ToListAsync();
+
+            var sharedPostIds = await _context.CtDaShares
+                .Where(c => c.MaND == user.Id)
+                .Select(a => a.MaCT)
+                .ToListAsync();
+
+
+            var allSharedPost = await _context.CongThucs
+                 .Include(ct => ct.CTCongThucs)
+                 .Where(ct => sharedPostIds.Contains(ct.MaCT))
+                 .Join(_context.NguoiDungs,
+                     ct => ct.MaND,
+                     nd => nd.MaND,
+                     (ct, nd) => new { CongThuc = ct, TacGia = nd })
+                 .Select(x => new PostResultDto
+                 {
+                     MaCT = x.CongThuc.MaCT,
+                     TenCT = x.CongThuc.TenCT,
+                     MoTaCT = x.CongThuc.MoTaCT,
+                     TongCalories = x.CongThuc.TongCalories,
+                     AnhCT = x.CongThuc.AnhCT,
+                     LuotXem = x.CongThuc.LuotXem,
+                     LuotLuu = x.CongThuc.LuotLuu,
+                     LuotComment = _context.Comments.Count(c => c.MaBaiViet == x.CongThuc.MaCT),
+                     LuotThich = x.CongThuc.LuotThich,
+                     TacGia = new NguoiDungDto
+                     {
+                         MaTK = x.TacGia.MaTK,
+                         TenND = x.TacGia.TenND,
+                         GioiTinh = x.TacGia.GioiTinh,
+                         NgaySinh = x.TacGia.NgaySinh,
+                         TieuSu = x.TacGia.TieuSu,
+                         SDT = x.TacGia.SDT,
+                         Email = x.TacGia.Email,
+                         DiaChi = x.TacGia.DiaChi,
+                         LuotTheoDoi = x.TacGia.LuotTheoDoi,
+                         AnhDaiDien = x.TacGia.AnhDaiDien
+                     },
+                     NguyenLieus = x.CongThuc.CTCongThucs
+                         .Join(_context.NguyenLieus,
+                             ctct => ctct.MaNL,
+                             nl => nl.MaNL,
+                             (ctct, nl) => new NguyenLieuOutputDto
+                             {
+                                 MaNL = nl.MaNL,
+                                 TenNL = nl.TenNL,
+                                 DinhLuong = ctct.DinhLuong,
+                                 DonViTinh = ctct.DonViTinh
+                             })
+                         .ToList()
+                 })
+                 .ToListAsync();
+
+            var allPosts =  allUserPost.Concat(allSharedPost).ToList(); // Tạo list mới
+
+            return allPosts; 
+        }
+
+
     }
 }

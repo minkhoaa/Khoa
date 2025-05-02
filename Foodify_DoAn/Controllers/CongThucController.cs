@@ -89,6 +89,14 @@ namespace Foodify_DoAn.Controllers
             if (result == null) return NotFound();
             return Ok(result);
         }
+
+        [HttpPost("getallPostandSharedPost")]
+        public async Task<IActionResult> getAllandSharedPosts([FromBody] string token)
+        {
+            var result = await _repository.GetAllUserAndSharedPost(token);
+            if (result == null) return NotFound();
+            return Ok(result);  
+        }
     }
     }
  
