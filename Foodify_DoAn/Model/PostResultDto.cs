@@ -13,7 +13,7 @@ namespace Foodify_DoAn.Model
         public int LuotComment { get; set; }
         public int LuotLuu { get; set; }
         public int LuotThich { get; set; }
-
+        public bool isLiked { get; set; } = false;
         public NguoiDungDto TacGia {get; set; }= null!;
 
         public List<NguyenLieuOutputDto> NguyenLieus { get; set; }

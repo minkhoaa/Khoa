@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Castle.Components.DictionaryAdapter.Xml;
 using Castle.Core.Logging;
+using CloudinaryDotNet.Actions;
 using DotNetEnv;
 using Foodify_DoAn.Data;
 using Foodify_DoAn.Model;
@@ -143,6 +144,7 @@ namespace Foodify_DoAn.Service
                     LuotLuu = x.CongThuc.LuotLuu,
                     LuotComment = _context.Comments.Where(a => a.MaBaiViet == x.CongThuc.MaCT).Count(),
                     LuotThich = x.CongThuc.LuotThich,
+                    isLiked = _context.CTDaThichs.Any(c => c.MaCT == x.CongThuc.MaCT && c.MaND == x.CongThuc.MaND),
                     TacGia = new NguoiDungDto
                     {
 
@@ -255,28 +257,39 @@ namespace Foodify_DoAn.Service
             var user = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == account.Id);
             if (user == null) return false;
 
-            var likedPost = new CTDaThich
+            var liked = await _context.CTDaThichs.FirstOrDefaultAsync(x => (x.MaCT == post.MaCT) && (x.MaND == user.MaND));
+            if (liked != null)
             {
-                MaCT = dto.IdCongThuc,
-                MaND = user.MaND
-            };
-
-            await _context.CTDaThichs.AddAsync(likedPost);
-            post.LuotThich++;
-            post.LuotXem++; 
-
-            var thongBao = new ThongBao()
+                _context.CTDaThichs.Remove(liked);
+                post.LuotThich--;
+                await _context.SaveChangesAsync();
+                return true; 
+            }
+            else
             {
-                MaND = post.MaND,
-                NoiDung = $"{user.TenND} vừa thích bài viết của bạn",
-                DaXem = false,
-                NgayTao = DateTime.UtcNow,
-            };
-            await _context.ThongBaos.AddAsync(thongBao);
+                var likedPost = new CTDaThich
+                {
+                    MaCT = dto.IdCongThuc,
+                    MaND = user.MaND
+                };
 
-            await _context.SaveChangesAsync();
-            return true;
-    
+                await _context.CTDaThichs.AddAsync(likedPost);
+                post.LuotThich++;
+                post.LuotXem++;
+
+                var thongBao = new ThongBao()
+                {
+                    MaND = post.MaND,
+                    NoiDung = $"{user.TenND} vừa thích bài viết của bạn",
+                    DaXem = false,
+                    NgayTao = DateTime.UtcNow,
+                };
+                await _context.ThongBaos.AddAsync(thongBao);
+
+                await _context.SaveChangesAsync();
+                return true;
+
+            }
         }
         public async Task<bool> CommentCongThuc(CommentPostDto comments)
         {
@@ -509,5 +522,7 @@ namespace Foodify_DoAn.Service
             return listPosts;
 
         }
+
+      
     }
 }

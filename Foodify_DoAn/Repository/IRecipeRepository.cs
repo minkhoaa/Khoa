@@ -29,6 +29,8 @@ namespace Foodify_DoAn.Repository
         public Task<List<PostResultDto>> GetAllUserAndSharedPost(string token);
 
         public Task<List<CongThuc>> FindPost(FindPostInputDto dto);
-        
+
+
+
     }
 }
