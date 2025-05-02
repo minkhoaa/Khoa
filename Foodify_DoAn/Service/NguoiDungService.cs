@@ -22,6 +22,29 @@ namespace Foodify_DoAn.Service
             _context = context;
         }
 
+        public async Task<bool> FollowOneUser(FollowUserDto dto)
+        {
+            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = dto.token });
+            if (user == null) return false;
+
+            var followingUser = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == user.Id);
+            if (followingUser == null) return false;
+
+            var followedUser = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaND == dto.idTaiKhoan);
+            if (followedUser == null) return false;
+
+            var following = new TheoDoi
+            {
+                Following_ID = followingUser.MaND,
+                Followed_ID = followedUser.MaND
+            };
+            await _context.TheoDois.AddAsync(following);
+            followedUser.LuotTheoDoi++;
+            _context.Update(followedUser);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<List<NguoiDung>> getAllNguoiDung(string token)
         {
             var user = await _account.AuthenticationAsync(new Model.TokenModel { AccessToken = token });
@@ -65,7 +88,7 @@ namespace Foodify_DoAn.Service
                 LuotTheoDoi = x.LuotTheoDoi,
                 AnhDaiDien = x.AnhDaiDien
             }).FirstAsync();
-            if (userinfo == null) return null;
+            if (userinfo == null) return null!;
             return userinfo;
         }
     }

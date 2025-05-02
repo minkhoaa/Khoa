@@ -45,5 +45,13 @@ namespace Foodify_DoAn.Controllers
             if (result == null) return NotFound();
             return Ok(result);
         }
+        [HttpPost("followUser")]
+
+        public async Task<IActionResult> followUser(FollowUserDto followUserDto)
+        {
+            var result = await _nguoiDungRepo.FollowOneUser(followUserDto);
+            if (result == false) return NotFound("Có lỗi xảy ra");
+            return Ok("Theo dõi thành công");
+        }
     }
 }

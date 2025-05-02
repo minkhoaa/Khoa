@@ -1,5 +1,6 @@
 ﻿using Foodify_DoAn.Data;
 using Foodify_DoAn.Model;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Foodify_DoAn.Repository
 {
@@ -11,5 +12,7 @@ namespace Foodify_DoAn.Repository
         public Task<List<ThongBaoResultDto>> getAllThongBao(string token);
 
         public Task<NguoiDungDto> getUserInfor(GetOneUserInfo info);
+
+        public Task<bool> FollowOneUser(FollowUserDto dto);
     }
 }
