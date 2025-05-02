@@ -45,5 +45,28 @@ namespace Foodify_DoAn.Service
             if (thongBao == null) return null;
             return thongBao;
         }
+
+        public async Task<NguoiDungDto> getUserInfor(GetOneUserInfo info)
+        {
+            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = info.token });
+            if (user == null) return null;
+
+
+            var userinfo = await _context.NguoiDungs.Where(x => x.MaND == info.IdUser).Select(x => new NguoiDungDto
+            {
+                MaTK = x.MaTK,
+                TenND = x.TenND,
+                GioiTinh = x.GioiTinh,
+                NgaySinh = x.NgaySinh,
+                TieuSu = x.TieuSu, 
+                SDT = x.SDT, 
+                Email = x.Email, 
+                DiaChi = x.DiaChi,
+                LuotTheoDoi = x.LuotTheoDoi,
+                AnhDaiDien = x.AnhDaiDien
+            }).FirstAsync();
+            if (userinfo == null) return null;
+            return userinfo;
+        }
     }
 }

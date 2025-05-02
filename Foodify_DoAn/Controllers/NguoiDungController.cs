@@ -1,4 +1,5 @@
 ﻿using Foodify_DoAn.Data;
+using Foodify_DoAn.Model;
 using Foodify_DoAn.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -33,6 +34,14 @@ namespace Foodify_DoAn.Controllers
         public async Task<IActionResult> getAllThongBao([FromBody]string token)
         {
             var result = await _nguoiDungRepo.getAllThongBao(token);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
+        [HttpPost("getoneuserinfo")]
+
+        public async Task<IActionResult> getOneUserInfo([FromBody] GetOneUserInfo getOneUserInfo)
+        {
+            var result = await _nguoiDungRepo.getUserInfor(getOneUserInfo);
             if (result == null) return NotFound();
             return Ok(result);
         }

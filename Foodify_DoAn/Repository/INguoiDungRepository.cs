@@ -10,5 +10,6 @@ namespace Foodify_DoAn.Repository
 
         public Task<List<ThongBaoResultDto>> getAllThongBao(string token);
 
+        public Task<NguoiDungDto> getUserInfor(GetOneUserInfo info);
     }
 }
