@@ -133,12 +133,14 @@ namespace Foodify_DoAn.Service
                 .Take(take)
                 .Select(x => new PostResultDto
                 {
+                    MaCT = x.CongThuc.MaCT,
                     TenCT = x.CongThuc.TenCT,
                     MoTaCT = x.CongThuc.MoTaCT,
                     TongCalories = x.CongThuc.TongCalories,
                     AnhCT = x.CongThuc.AnhCT,
                     LuotXem = x.CongThuc.LuotXem,
                     LuotLuu = x.CongThuc.LuotLuu,
+                    LuotComment = _context.Comments.Where(a => a.MaBaiViet == x.CongThuc.MaCT).Count(),
                     LuotThich = x.CongThuc.LuotThich,
                     TacGia = new NguoiDungDto
                     {
@@ -296,6 +298,9 @@ namespace Foodify_DoAn.Service
                 ThoiGian = DateTime.UtcNow
             };
             await _context.Comments.AddAsync(comment);
+            post.LuotComment = _context.Comments.Where(x => x.MaBaiViet == post.MaCT).Count()  ;
+             _context.CongThucs.Update(post);
+            await _context.SaveChangesAsync(); 
 
             var thongBao = new ThongBao
             {

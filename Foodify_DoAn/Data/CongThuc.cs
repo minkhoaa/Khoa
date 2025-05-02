@@ -14,6 +14,8 @@ namespace Foodify_DoAn.Data
         public decimal TongCalories { get; set; }
         public string AnhCT { get; set; }
         public int LuotXem { get; set; }
+
+        public int LuotComment { get; set; }
         public int LuotLuu { get; set; }
         public int LuotThich { get; set; }
 
