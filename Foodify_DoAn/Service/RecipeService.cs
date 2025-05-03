@@ -162,7 +162,8 @@ namespace Foodify_DoAn.Service
                         Email = x.TacGia.Email,
                         DiaChi = x.TacGia.DiaChi,
                         LuotTheoDoi = x.TacGia.LuotTheoDoi,
-                        AnhDaiDien = x.TacGia.AnhDaiDien
+                        AnhDaiDien = x.TacGia.AnhDaiDien, 
+                        isFollowed = _context.TheoDois.Any(a => a.Following_ID == nguoidung.MaND && a.Followed_ID == x.TacGia.MaND)
                     },
                     NguyenLieus = x.CongThuc.CTCongThucs
                     .Join(_context.NguyenLieus,
@@ -204,13 +205,71 @@ namespace Foodify_DoAn.Service
             if (post == null) return null!;
 
 
+
             var user = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == account.Id);
             if (user == null) return null!;
+            var recipeDtos = await _context.CongThucs
+               .Include(ct => ct.CTCongThucs)
+               .Where(x => x.MaCT == request.IdCongThuc )
+               .Join(_context.NguoiDungs,
+                   ct => ct.MaND,
+                   nd => nd.MaND,
+                   (ct, nd) => new { CongThuc = ct, TacGia = nd })
+
+               .Select(x => new PostResultDto
+               {
+                   MaCT = x.CongThuc.MaCT,
+                   TenCT = x.CongThuc.TenCT,
+                   MoTaCT = x.CongThuc.MoTaCT,
+                   TongCalories = x.CongThuc.TongCalories,
+                   AnhCT = x.CongThuc.AnhCT,
+                   LuotXem = x.CongThuc.LuotXem,
+                   LuotLuu = x.CongThuc.LuotLuu,
+                   LuotComment = _context.Comments.Where(a => a.MaBaiViet == x.CongThuc.MaCT).Count(),
+                   LuotShare = _context.CtDaShares.Where(a => a.MaCT == x.CongThuc.MaCT).Count(),
+
+                   LuotThich = _context.CTDaThichs.Where(a => a.MaCT == x.CongThuc.MaCT).Count(),
+                   isLiked = _context.CTDaThichs.Any(c => c.MaCT == x.CongThuc.MaCT && c.MaND == user.MaND),
+                   
+                   TacGia = new NguoiDungDto
+                   {
+
+                       MaTK = x.TacGia.MaTK,
+                       TenND = x.TacGia.TenND,
+                       GioiTinh = x.TacGia.GioiTinh,
+                       NgaySinh = x.TacGia.NgaySinh,
+                       TieuSu = x.TacGia.TieuSu,
+                       SDT = x.TacGia.SDT,
+                       Email = x.TacGia.Email,
+                       DiaChi = x.TacGia.DiaChi,
+                       LuotTheoDoi = x.TacGia.LuotTheoDoi,
+                       AnhDaiDien = x.TacGia.AnhDaiDien,
+                       isFollowed = _context.TheoDois.Any(a => a.Following_ID == user.MaND && a.Followed_ID == x.TacGia.MaND)
+
+                   },
+                   NguyenLieus = x.CongThuc.CTCongThucs
+                   .Join(_context.NguyenLieus,
+                       ad => ad.MaNL,
+                       af => af.MaNL,
+                       (ad, af) => new { CTCongThuc = ad, NguyenLieu = af }
+                   )
+                   .Select(a => new NguyenLieuOutputDto
+                   {
+
+                       MaNL = a.NguyenLieu.MaNL,
+                       TenNL = a.NguyenLieu.TenNL,
+                       DinhLuong = a.CTCongThuc.DinhLuong,
+                       DonViTinh = a.CTCongThuc.DonViTinh
+
+                   }).ToList()
+               })
+               .FirstOrDefaultAsync();
 
             var listUserComment = await _context.Comments
                 .Where(x => x.MaBaiViet == post.MaCT)
                 .Select(x => new { x.MaND, x.ThoiGian, x.NoiDung }) // Use 'new' keyword to create an anonymous object
                 .ToListAsync();
+
             List<CommentResultDto> commentResultDtos = new List<CommentResultDto>();
 
             foreach (var info in listUserComment)
@@ -228,22 +287,11 @@ namespace Foodify_DoAn.Service
                 });
             }
 
+          
             return new PostAndCommentsDto
             {
-                post = new PostResultDto
-                {
-                    MaCT = post.MaCT,
-                    TenCT = post.TenCT,
-                    MoTaCT = post.MoTaCT,
-                    TongCalories = post.TongCalories,
-                    AnhCT = post.AnhCT,
-                    LuotComment = _context.Comments.Where(a => a.MaBaiViet == request.IdCongThuc).Count(),
-                    LuotShare = _context.CtDaShares.Where(a => a.MaCT == request.IdCongThuc).Count(),
-
-                    LuotThich = _context.CTDaThichs.Where(a => a.MaCT == request.IdCongThuc).Count(),
-
-                },
-
+                post = recipeDtos!,
+                
                 comments = commentResultDtos
 
 
