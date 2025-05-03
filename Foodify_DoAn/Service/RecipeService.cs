@@ -523,6 +523,36 @@ namespace Foodify_DoAn.Service
 
         }
 
-      
+        public async Task<List<CommentResultDto>> GetComment(Like_Share_GetOnePostDto dto)
+        {
+            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = dto.token });
+            if (user == null) return null;
+
+            var post = await _context.CongThucs.FirstOrDefaultAsync(x => x.MaCT == dto.IdCongThuc);
+            if (post == null) return null;
+
+            var listPost = await _context.Comments
+                .Where(x => x.MaBaiViet == post.MaCT)
+                            
+                            .Join(_context.NguoiDungs,
+                             ct => ct.MaND,
+                             af => af.MaND,
+                             (ct, af) => new { Comment = ct, NguoiDung = af }
+                            )
+                            .Select( a => 
+                            new CommentResultDto
+                            {
+                                tacgia = new NguoiDungCommentDto
+                                {
+                                    AnhDaiDien = a.NguoiDung.AnhDaiDien,
+                                    TenND = a.NguoiDung.TenND
+                                },
+                                NgayBinhLuan =  a.Comment.ThoiGian,
+                                NoiDung = a.Comment.NoiDung
+                                
+                            })
+                            .ToListAsync();
+            return listPost;
+        }
     }
 }

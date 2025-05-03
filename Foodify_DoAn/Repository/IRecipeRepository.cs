@@ -30,6 +30,7 @@ namespace Foodify_DoAn.Repository
 
         public Task<List<CongThuc>> FindPost(FindPostInputDto dto);
 
+        public Task<List<CommentResultDto>> GetComment(Like_Share_GetOnePostDto dto);
 
 
     }

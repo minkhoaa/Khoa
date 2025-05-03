@@ -106,6 +106,13 @@ namespace Foodify_DoAn.Controllers
             if (result == null) return NotFound();
             return Ok(result);
         }
+        [HttpPost("getComment")]
+        public async Task<IActionResult> getComments(Like_Share_GetOnePostDto dto)
+        {
+            var result = await _repository.GetComment(dto);
+            if (result == null) return NotFound();
+            return Ok(result);  
+        }
     }
 }
  

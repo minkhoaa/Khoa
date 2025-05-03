@@ -15,6 +15,7 @@ namespace Foodify_DoAn.Model
         public string DiaChi { get; set; }
         public int LuotTheoDoi { get; set; }
         public string AnhDaiDien { get; set; }
+        public bool isFollowed { get; set; }
 
     }
 }

@@ -3,6 +3,7 @@ using Foodify_DoAn.Model;
 using Foodify_DoAn.Repository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.OpenApi.MicrosoftExtensions;
@@ -74,6 +75,8 @@ namespace Foodify_DoAn.Service
             var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = info.token });
             if (user == null) return null;
 
+            var currentUser = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == user.Id);
+            if (currentUser == null) return null;
 
             var userinfo = await _context.NguoiDungs.Where(x => x.MaND == info.IdUser).Select(x => new NguoiDungDto
             {
@@ -86,7 +89,8 @@ namespace Foodify_DoAn.Service
                 Email = x.Email, 
                 DiaChi = x.DiaChi,
                 LuotTheoDoi = x.LuotTheoDoi,
-                AnhDaiDien = x.AnhDaiDien
+                AnhDaiDien = x.AnhDaiDien,
+                isFollowed = _context.TheoDois.Any(a => (a.Following_ID == currentUser.MaND) && (a.Followed_ID == info.IdUser))
             }).FirstAsync();
             if (userinfo == null) return null!;
             return userinfo;
