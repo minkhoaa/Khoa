@@ -144,6 +144,8 @@ namespace Foodify_DoAn.Service
                     LuotXem = x.CongThuc.LuotXem,
                     LuotLuu = x.CongThuc.LuotLuu,
                     LuotComment = _context.Comments.Where(a => a.MaBaiViet == x.CongThuc.MaCT).Count(),
+                    LuotShare = _context.CtDaShares.Where(a => a.MaCT == x.CongThuc.MaCT).Count(),
+
                     LuotThich = x.CongThuc.LuotThich,
                     isLiked = _context.CTDaThichs.Any(c => c.MaCT == x.CongThuc.MaCT && c.MaND == x.CongThuc.MaND),
                     TacGia = new NguoiDungDto
@@ -345,6 +347,8 @@ namespace Foodify_DoAn.Service
             var user = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == account.Id);
             if (user == null) return false;
 
+           
+            await _context.SaveChangesAsync();
             var sharedRecipe = new CtDaShare
             {
                 MaCT = post.MaCT,
@@ -352,9 +356,9 @@ namespace Foodify_DoAn.Service
                 ThoiGian = DateTime.UtcNow
             };
             await _context.CtDaShares.AddAsync(sharedRecipe);
-
-            post.LuotXem++;
-            post.LuotShare++; 
+             post.LuotXem++;
+            post.LuotShare++;
+            
 
             var thongBao = new ThongBao()
             {
@@ -389,13 +393,13 @@ namespace Foodify_DoAn.Service
 
             var allUserPost = await _context.CongThucs
                  .Include(ct => ct.CTCongThucs)
-                 .Where( a => a.MaND ==user.Id)
+                 .Where(a => a.MaND == user.Id)
                  .Join(_context.NguoiDungs,
                      ct => ct.MaND,
                      nd => nd.MaND,
                      (ct, nd) => new { CongThuc = ct, TacGia = nd })
 
-                 
+
                  .Select(x => new PostResultDto
                  {
                      MaCT = x.CongThuc.MaCT,
@@ -405,7 +409,7 @@ namespace Foodify_DoAn.Service
                      AnhCT = x.CongThuc.AnhCT,
                      LuotXem = x.CongThuc.LuotXem,
                      LuotLuu = x.CongThuc.LuotLuu,
-                     LuotShare = x.CongThuc.LuotShare,
+                     LuotShare = _context.CtDaShares.Where(a => a.MaCT == x.CongThuc.MaCT).Count(),
                      NgayCapNhat = x.CongThuc.NgayCapNhat,
                      LuotComment = _context.Comments.Where(a => a.MaBaiViet == x.CongThuc.MaCT).Count(),
                      LuotThich = x.CongThuc.LuotThich,
@@ -463,6 +467,8 @@ namespace Foodify_DoAn.Service
                      AnhCT = x.CongThuc.AnhCT,
                      LuotXem = x.CongThuc.LuotXem,
                      LuotLuu = x.CongThuc.LuotLuu,
+                     LuotShare = _context.CtDaShares.Where(a => a.MaCT == x.CongThuc.MaCT).Count(),
+
                      NgayCapNhat = x.CongThuc.NgayCapNhat, 
                      LuotComment = _context.Comments.Count(c => c.MaBaiViet == x.CongThuc.MaCT),
                      LuotThich = x.CongThuc.LuotThich,
