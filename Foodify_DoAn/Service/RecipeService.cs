@@ -232,15 +232,15 @@ namespace Foodify_DoAn.Service
             {
                 post = new PostResultDto
                 {
-
+                    MaCT = post.MaCT,
                     TenCT = post.TenCT,
                     MoTaCT = post.MoTaCT,
                     TongCalories = post.TongCalories,
                     AnhCT = post.AnhCT,
-                    LuotComment = _context.Comments.Where(a => a.MaBaiViet == post.MaCT).Count(),
-                    LuotShare = _context.CtDaShares.Where(a => a.MaCT == post.MaCT).Count(),
+                    LuotComment = _context.Comments.Where(a => a.MaBaiViet == request.IdCongThuc).Count(),
+                    LuotShare = _context.CtDaShares.Where(a => a.MaCT == request.IdCongThuc).Count(),
 
-                    LuotThich = _context.CTDaThichs.Where(a => a.MaCT == post.MaCT).Count(),
+                    LuotThich = _context.CTDaThichs.Where(a => a.MaCT == request.IdCongThuc).Count(),
 
                 },
 
@@ -286,6 +286,7 @@ namespace Foodify_DoAn.Service
                 var thongBao = new ThongBao()
                 {
                     MaND = post.MaND,
+                    MaBaiViet = post.MaCT,
                     NoiDung = $"{user.TenND} vừa thích bài viết của bạn",
                     DaXem = false,
                     NgayTao = DateTime.UtcNow,
@@ -325,6 +326,7 @@ namespace Foodify_DoAn.Service
             var thongBao = new ThongBao
             {
                 MaND = post.MaND,
+                MaBaiViet = post.MaCT,
                 NoiDung = $"{user.TenND} đã bình luận về bài viết của bạn",
                 NgayTao = DateTime.UtcNow,
                 DaXem = false
@@ -366,6 +368,7 @@ namespace Foodify_DoAn.Service
             var thongBao = new ThongBao()
             {
                 MaND = post.MaND,
+                MaBaiViet = post.MaCT,
                 NoiDung = $"{user.TenND} vừa chia sẻ bài viết của bạn",
                 DaXem = false,
                 NgayTao = DateTime.UtcNow,

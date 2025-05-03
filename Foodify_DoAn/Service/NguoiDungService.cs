@@ -62,6 +62,9 @@ namespace Foodify_DoAn.Service
 
             var thongBao = await _context.ThongBaos.Where(x => x.MaND == nguoidung.MaND).Select(x => new ThongBaoResultDto
             {
+                MaBaiViet = x.MaBaiViet,
+                MaND = x.MaND ,
+                MaTB = x.MaTB,
                 NgayTao = x.NgayTao,
                 DaXem = x.DaXem,
                 NoiDung = x.NoiDung
@@ -94,6 +97,19 @@ namespace Foodify_DoAn.Service
             }).FirstAsync();
             if (userinfo == null) return null!;
             return userinfo;
+        }
+
+        public async Task<int> SeenOneNotification(SeenOnePost dto)
+        {
+            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = dto.token });
+            if (user == null) return -1;
+            var noti = await _context.ThongBaos.FirstOrDefaultAsync(x => x.MaTB == dto.idNoti);
+            if (noti == null) return -1;
+
+            noti.DaXem = true;
+            _context.Update(noti);
+            await _context.SaveChangesAsync(); 
+            return noti.MaBaiViet;
         }
     }
 }

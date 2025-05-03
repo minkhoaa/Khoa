@@ -53,5 +53,12 @@ namespace Foodify_DoAn.Controllers
             if (result == false) return NotFound("Có lỗi xảy ra");
             return Ok("Theo dõi thành công");
         }
+        [HttpPost("seenOnePost")]
+        public async Task<IActionResult> seenOnePost(SeenOnePost dto)
+        {
+            var result = await _nguoiDungRepo.SeenOneNotification(dto);
+            if (result == -1) return NotFound();
+            return Ok(result);
+        }
     }
 }

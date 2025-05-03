@@ -14,5 +14,6 @@ namespace Foodify_DoAn.Repository
         public Task<NguoiDungDto> getUserInfor(GetOneUserInfo info);
 
         public Task<bool> FollowOneUser(FollowUserDto dto);
+        public Task<int> SeenOneNotification(SeenOnePost dto);
     }
 }
