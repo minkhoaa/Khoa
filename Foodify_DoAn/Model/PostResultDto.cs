@@ -12,6 +12,7 @@ namespace Foodify_DoAn.Model
         public int LuotXem { get; set; }
         public int LuotComment { get; set; }
         public int LuotLuu { get; set; }
+        public int LuotShare { get; set; }
         public DateTime NgayCapNhat { get; set; }
         public int LuotThich { get; set; }
         public bool isLiked { get; set; } = false;

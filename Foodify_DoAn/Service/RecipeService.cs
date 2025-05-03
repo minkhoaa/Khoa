@@ -405,6 +405,7 @@ namespace Foodify_DoAn.Service
                      AnhCT = x.CongThuc.AnhCT,
                      LuotXem = x.CongThuc.LuotXem,
                      LuotLuu = x.CongThuc.LuotLuu,
+                     LuotShare = x.CongThuc.LuotShare,
                      NgayCapNhat = x.CongThuc.NgayCapNhat,
                      LuotComment = _context.Comments.Where(a => a.MaBaiViet == x.CongThuc.MaCT).Count(),
                      LuotThich = x.CongThuc.LuotThich,
@@ -526,6 +527,7 @@ namespace Foodify_DoAn.Service
                      AnhCT = x.CongThuc.AnhCT,
                      LuotXem = x.CongThuc.LuotXem,
                      LuotLuu = x.CongThuc.LuotLuu,
+                     LuotShare = x.CongThuc.LuotShare,
                      NgayCapNhat = x.CongThuc.NgayCapNhat, 
 
                      LuotComment = _context.Comments.Where(a => a.MaBaiViet == x.CongThuc.MaCT).Count(),
