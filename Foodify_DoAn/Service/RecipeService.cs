@@ -495,8 +495,7 @@ namespace Foodify_DoAn.Service
 
             var allPosts = allUserPost
                     .Concat(allSharedPost)
-                    .GroupBy(p => p.MaCT) // nhóm theo MaCT
-                    .Select(g => g.First()) // chọn 1 bài duy nhất trong mỗi nhóm
+                
                     .OrderByDescending(p => p.NgayCapNhat) // sắp xếp theo ngày cập nhật
                     .ToList();
 
@@ -619,8 +618,6 @@ namespace Foodify_DoAn.Service
                  .ToListAsync();
             var allPosts = allUserPost
                     .Concat(allSharedPost)
-                    .GroupBy(p => p.MaCT) // nhóm theo MaCT
-                    .Select(g => g.First()) // chọn 1 bài duy nhất trong mỗi nhóm
                     .OrderByDescending(p => p.NgayCapNhat) // sắp xếp theo ngày cập nhật
                     .ToList();
 
