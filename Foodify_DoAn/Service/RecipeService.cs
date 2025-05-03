@@ -111,7 +111,9 @@ namespace Foodify_DoAn.Service
             var user = string.IsNullOrEmpty(recipe.Token)
                 ? null
                 : await _account.AuthenticationAsync(new TokenModel { AccessToken = recipe.Token });
-
+            if (user == null) return null;
+            var nguoidung = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == user.Id);
+            if (nguoidung == null) return null!;
             List<int> followingUserIds = new();
 
             if (user != null)
@@ -147,7 +149,7 @@ namespace Foodify_DoAn.Service
                     LuotShare = _context.CtDaShares.Where(a => a.MaCT == x.CongThuc.MaCT).Count(),
 
                     LuotThich = _context.CTDaThichs.Where(a => a.MaCT == x.CongThuc.MaCT).Count(), 
-                    isLiked = _context.CTDaThichs.Any(c => c.MaCT == x.CongThuc.MaCT && c.MaND == x.CongThuc.MaND),
+                    isLiked = _context.CTDaThichs.Any(c => c.MaCT == x.CongThuc.MaCT && c.MaND == nguoidung.MaND),
                     TacGia = new NguoiDungDto
                     {
 
