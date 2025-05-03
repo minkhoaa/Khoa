@@ -113,6 +113,13 @@ namespace Foodify_DoAn.Controllers
             if (result == null) return NotFound();
             return Ok(result);  
         }
+        [HttpPost("getOneUserAndSharedPost")]
+        public async Task<IActionResult> getOneUserAndSharedPosts (OneUserPostDto dto )
+        {
+            var result = await _repository.getOneUserAndSharedPost(dto);
+            if (result == null) return NotFound();
+            return Ok(result);  
+        }
     }
 }
  
