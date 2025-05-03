@@ -146,7 +146,7 @@ namespace Foodify_DoAn.Service
                     LuotComment = _context.Comments.Where(a => a.MaBaiViet == x.CongThuc.MaCT).Count(),
                     LuotShare = _context.CtDaShares.Where(a => a.MaCT == x.CongThuc.MaCT).Count(),
 
-                    LuotThich = x.CongThuc.LuotThich,
+                    LuotThich = _context.CTDaThichs.Where(a => a.MaCT == x.CongThuc.MaCT).Count(), 
                     isLiked = _context.CTDaThichs.Any(c => c.MaCT == x.CongThuc.MaCT && c.MaND == x.CongThuc.MaND),
                     TacGia = new NguoiDungDto
                     {
@@ -235,9 +235,10 @@ namespace Foodify_DoAn.Service
                     MoTaCT = post.MoTaCT,
                     TongCalories = post.TongCalories,
                     AnhCT = post.AnhCT,
-                    LuotXem = post.LuotXem,
-                    LuotLuu = post.LuotLuu,
-                    LuotThich = post.LuotThich
+                    LuotComment = _context.Comments.Where(a => a.MaBaiViet == post.MaCT).Count(),
+                    LuotShare = _context.CtDaShares.Where(a => a.MaCT == post.MaCT).Count(),
+
+                    LuotThich = _context.CTDaThichs.Where(a => a.MaCT == post.MaCT).Count(),
 
                 },
 
@@ -467,11 +468,13 @@ namespace Foodify_DoAn.Service
                      AnhCT = x.CongThuc.AnhCT,
                      LuotXem = x.CongThuc.LuotXem,
                      LuotLuu = x.CongThuc.LuotLuu,
+                   
+
+                     NgayCapNhat = x.CongThuc.NgayCapNhat,
+                     LuotComment = _context.Comments.Where(a => a.MaBaiViet == x.CongThuc.MaCT).Count(),
                      LuotShare = _context.CtDaShares.Where(a => a.MaCT == x.CongThuc.MaCT).Count(),
 
-                     NgayCapNhat = x.CongThuc.NgayCapNhat, 
-                     LuotComment = _context.Comments.Count(c => c.MaBaiViet == x.CongThuc.MaCT),
-                     LuotThich = x.CongThuc.LuotThich,
+                     LuotThich = _context.CTDaThichs.Where(a => a.MaCT == x.CongThuc.MaCT).Count(),
                      TacGia = new NguoiDungDto
                      {
                          MaTK = x.TacGia.MaTK,
@@ -533,11 +536,13 @@ namespace Foodify_DoAn.Service
                      AnhCT = x.CongThuc.AnhCT,
                      LuotXem = x.CongThuc.LuotXem,
                      LuotLuu = x.CongThuc.LuotLuu,
-                     LuotShare = x.CongThuc.LuotShare,
-                     NgayCapNhat = x.CongThuc.NgayCapNhat, 
+                    
+                     NgayCapNhat = x.CongThuc.NgayCapNhat,
 
                      LuotComment = _context.Comments.Where(a => a.MaBaiViet == x.CongThuc.MaCT).Count(),
-                     LuotThich = x.CongThuc.LuotThich,
+                     LuotShare = _context.CtDaShares.Where(a => a.MaCT == x.CongThuc.MaCT).Count(),
+
+                     LuotThich = _context.CTDaThichs.Where(a => a.MaCT == x.CongThuc.MaCT).Count(),
                      TacGia = new NguoiDungDto
                      {
 
@@ -594,9 +599,11 @@ namespace Foodify_DoAn.Service
                      LuotXem = x.CongThuc.LuotXem,
                      LuotLuu = x.CongThuc.LuotLuu,
                      NgayCapNhat = x.CongThuc.NgayCapNhat,
-                     LuotComment = _context.Comments.Count(c => c.MaBaiViet == x.CongThuc.MaCT),
-                     LuotThich = x.CongThuc.LuotThich,
-                     
+                     LuotComment = _context.Comments.Where(a => a.MaBaiViet == x.CongThuc.MaCT).Count(),
+                     LuotShare = _context.CtDaShares.Where(a => a.MaCT == x.CongThuc.MaCT).Count(),
+
+                     LuotThich = _context.CTDaThichs.Where(a => a.MaCT == x.CongThuc.MaCT).Count(),
+
                      TacGia = new NguoiDungDto
                      {
                          MaTK = x.TacGia.MaTK,
