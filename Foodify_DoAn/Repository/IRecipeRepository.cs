@@ -28,8 +28,10 @@ namespace Foodify_DoAn.Repository
 
         public Task<List<PostResultDto>> GetAllUserAndSharedPost(string token);
 
+        public  Task<bool> DeleteComment(DeleteComment_IfTrueDto dto);
+
         public Task<List<PostResultDto>> getOneUserAndSharedPost(OneUserPostDto oneUserPostDto);
-        public Task<List<CongThuc>> FindPost(FindPostInputDto dto);
+        public Task<List<PostResultDto>> FindPost(FindPostInputDto dto);
 
         public Task<List<CommentResultDto>> GetComment(Like_Share_GetOnePostDto dto);
 

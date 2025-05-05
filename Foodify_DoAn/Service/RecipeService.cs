@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Features;
 using Castle.Components.DictionaryAdapter.Xml;
 using Castle.Core.Logging;
 using CloudinaryDotNet.Actions;
@@ -12,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Validations;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json.Linq;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal;
 using Npgsql.PostgresTypes;
 using Npgsql.Replication;
 using System.Diagnostics;
@@ -200,6 +202,9 @@ namespace Foodify_DoAn.Service
 
             if (account == null) return null!;
 
+            var nguoidung = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == account.Id);
+            if (nguoidung == null) return null;
+
             var post = await _context.CongThucs.FirstOrDefaultAsync(x => x.MaCT == request.IdCongThuc);
 
             if (post == null) return null!;
@@ -283,6 +288,7 @@ namespace Foodify_DoAn.Service
                 {
                     tacgia = userInfo,
                     NgayBinhLuan = info.ThoiGian,
+                    canDeleted = info.MaND == nguoidung.MaND,
                     NoiDung = info.NoiDung
                 });
             }
@@ -387,6 +393,19 @@ namespace Foodify_DoAn.Service
             return true;
         }
 
+        public async Task<bool> DeleteComment(DeleteComment_IfTrueDto dto) {
+            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = dto.token });
+            if (user == null) return false;
+            var nguoidung = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == user.Id);
+            if (nguoidung == null) return false;
+
+            if (dto.canDelete == false) return false;
+            var comment = await _context.Comments.FirstOrDefaultAsync(x => x.MaComment == dto.MaComment);
+            if (comment == null) return false;
+            _context.Comments.Remove(comment);
+            await _context.SaveChangesAsync();
+            return true;     
+        }
         public async Task<bool> ShareCongThuc(Like_Share_GetOnePostDto dto)
         {
             var account = await _account.AuthenticationAsync(new TokenModel { AccessToken = dto.token });
@@ -693,11 +712,13 @@ namespace Foodify_DoAn.Service
             return allPosts;
 
         }
-        public async Task<List<CongThuc>> FindPost(FindPostInputDto dto)
+        public async Task<List<PostResultDto>> FindPost(FindPostInputDto dto)
         {
             var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = dto.token });
             if (user == null) return null!;
 
+            var nguoidung = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == user.Id);
+            if (nguoidung == null) return null!; 
            
             var caloMin = dto.caloMin;
             var caloMax = dto.caloMax;
@@ -715,6 +736,59 @@ namespace Foodify_DoAn.Service
                 .Where(ct => filteredMaCTs.Contains(ct.MaCT) &&
                              ct.TongCalories >= caloMin &&
                              ct.TongCalories <= caloMax)
+                 .Include(ct => ct.CTCongThucs)
+                .Join(_context.NguoiDungs,
+                    ct => ct.MaND,
+                    nd => nd.MaND,
+                    (ct, nd) => new { CongThuc = ct, TacGia = nd })
+
+                .OrderByDescending(x => x.CongThuc.NgayCapNhat)
+            
+                .Select(x => new PostResultDto
+                {
+                    MaCT = x.CongThuc.MaCT,
+                    TenCT = x.CongThuc.TenCT,
+                    MoTaCT = x.CongThuc.MoTaCT,
+                    TongCalories = x.CongThuc.TongCalories,
+                    AnhCT = x.CongThuc.AnhCT,
+                    LuotXem = x.CongThuc.LuotXem,
+                    LuotLuu = x.CongThuc.LuotLuu,
+                    LuotComment = _context.Comments.Where(a => a.MaBaiViet == x.CongThuc.MaCT).Count(),
+                    LuotShare = _context.CtDaShares.Where(a => a.MaCT == x.CongThuc.MaCT).Count(),
+
+                    LuotThich = _context.CTDaThichs.Where(a => a.MaCT == x.CongThuc.MaCT).Count(),
+                    isLiked = _context.CTDaThichs.Any(c => c.MaCT == x.CongThuc.MaCT && c.MaND == nguoidung.MaND),
+                    TacGia = new NguoiDungDto
+                    {
+
+                        MaTK = x.TacGia.MaTK,
+                        TenND = x.TacGia.TenND,
+                        GioiTinh = x.TacGia.GioiTinh,
+                        NgaySinh = x.TacGia.NgaySinh,
+                        TieuSu = x.TacGia.TieuSu,
+                        SDT = x.TacGia.SDT,
+                        Email = x.TacGia.Email,
+                        DiaChi = x.TacGia.DiaChi,
+                        LuotTheoDoi = x.TacGia.LuotTheoDoi,
+                        AnhDaiDien = x.TacGia.AnhDaiDien,
+                        isFollowed = _context.TheoDois.Any(a => a.Following_ID == nguoidung.MaND && a.Followed_ID == x.TacGia.MaND)
+                    },
+                    NguyenLieus = x.CongThuc.CTCongThucs
+                    .Join(_context.NguyenLieus,
+                        ad => ad.MaNL,
+                        af => af.MaNL,
+                        (ad, af) => new { CTCongThuc = ad, NguyenLieu = af }
+                    )
+                    .Select(a => new NguyenLieuOutputDto
+                    {
+
+                        MaNL = a.NguyenLieu.MaNL,
+                        TenNL = a.NguyenLieu.TenNL,
+                        DinhLuong = a.CTCongThuc.DinhLuong,
+                        DonViTinh = a.CTCongThuc.DonViTinh
+
+                    }).ToList()
+                })
                 .ToListAsync();
 
             return listPosts;
@@ -724,10 +798,13 @@ namespace Foodify_DoAn.Service
         public async Task<List<CommentResultDto>> GetComment(Like_Share_GetOnePostDto dto)
         {
             var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = dto.token });
-            if (user == null) return null;
+            if (user == null) return null!;
+
+            var nguoidung = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == user.Id);
+            if (nguoidung == null) return null!;
 
             var post = await _context.CongThucs.FirstOrDefaultAsync(x => x.MaCT == dto.IdCongThuc);
-            if (post == null) return null;
+            if (post == null) return null!;
 
             var listPost = await _context.Comments
                 .Where(x => x.MaBaiViet == post.MaCT)
@@ -746,6 +823,7 @@ namespace Foodify_DoAn.Service
                                     TenND = a.NguoiDung.TenND
                                 },
                                 NgayBinhLuan =  a.Comment.ThoiGian,
+                                canDeleted = a.Comment.MaND == nguoidung.MaND,
                                 NoiDung = a.Comment.NoiDung
                                 
                             })

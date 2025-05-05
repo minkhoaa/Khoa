@@ -9,5 +9,7 @@ namespace Foodify_DoAn.Model
         public DateTime NgayBinhLuan { get; set; } 
 
         public string NoiDung { get;set; }
+
+        public bool canDeleted { get; set; }
     }
 }

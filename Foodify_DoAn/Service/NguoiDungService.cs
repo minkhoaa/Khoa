@@ -65,10 +65,13 @@ namespace Foodify_DoAn.Service
                 MaBaiViet = x.MaBaiViet,
                 MaND = x.MaND ,
                 MaTB = x.MaTB,
+                
                 NgayTao = x.NgayTao,
                 DaXem = x.DaXem,
                 NoiDung = x.NoiDung
-            }).ToListAsync();
+            })
+                .OrderByDescending(x=>x.NgayTao) 
+                .ToListAsync();
             if (thongBao == null) return null;
             return thongBao;
         }

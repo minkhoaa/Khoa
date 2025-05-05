@@ -113,6 +113,14 @@ namespace Foodify_DoAn.Controllers
             if (result == null) return NotFound();
             return Ok(result);  
         }
+
+        [HttpPost("deleteComment")]
+        public async  Task<IActionResult> deleteComment_If_True(DeleteComment_IfTrueDto dto)
+        {
+            var result = await _repository.DeleteComment(dto);
+            if (result == false) return BadRequest();
+            return Ok();
+        }
         [HttpPost("getOneUserAndSharedPost")]
         public async Task<IActionResult> getOneUserAndSharedPosts (OneUserPostDto dto )
         {
