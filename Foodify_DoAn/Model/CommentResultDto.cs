@@ -8,6 +8,8 @@ namespace Foodify_DoAn.Model
         public NguoiDungCommentDto tacgia { get; set; }
         public DateTime NgayBinhLuan { get; set; } 
 
+        public int MaComment { get; set; }
+
         public string NoiDung { get;set; }
 
         public bool canDeleted { get; set; }
