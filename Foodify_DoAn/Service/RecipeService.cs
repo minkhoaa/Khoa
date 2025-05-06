@@ -272,7 +272,7 @@ namespace Foodify_DoAn.Service
 
             var listUserComment = await _context.Comments
                 .Where(x => x.MaBaiViet == post.MaCT)
-                .Select(x => new { x.MaND, x.ThoiGian, x.NoiDung }) // Use 'new' keyword to create an anonymous object
+                .Select(x => new { x.MaND, x.ThoiGian, x.NoiDung , x.MaComment}) // Use 'new' keyword to create an anonymous object
                 .ToListAsync();
 
             List<CommentResultDto> commentResultDtos = new List<CommentResultDto>();
@@ -286,6 +286,7 @@ namespace Foodify_DoAn.Service
                 }).FirstOrDefaultAsync();
                 commentResultDtos.Add(new CommentResultDto
                 {
+                    MaComment = info.MaComment,
                     tacgia = userInfo,
                     NgayBinhLuan = info.ThoiGian,
                     canDeleted = info.MaND == nguoidung.MaND,
@@ -817,6 +818,7 @@ namespace Foodify_DoAn.Service
                             .Select( a => 
                             new CommentResultDto
                             {
+                                MaComment = a.Comment.MaComment,
                                 tacgia = new NguoiDungCommentDto
                                 {
                                     AnhDaiDien = a.NguoiDung.AnhDaiDien,
