@@ -860,18 +860,28 @@ namespace Foodify_DoAn.Service
             var nguoidung = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == user.Id);
             if (user == null || nguoidung == null || post == null) return false;
 
-            
-            var ctToCao = new CtToCaos
+            var reported = await _context.CtToCaos.FirstOrDefaultAsync(x => (x.MaCT == post.MaCT) && (x.MaND == nguoidung.MaND));
+            if (reported != null)
             {
-                MaND = nguoidung.MaND,
-                MaCT = dto.IdCongThuc,
+                _context.CtToCaos.Remove(reported);
+                post.LuotToCao--;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                var ctToCao = new CtToCaos
+                {
+                    MaND = nguoidung.MaND,
+                    MaCT = dto.IdCongThuc,
 
-            };
-            await _context.CtToCaos.AddAsync(ctToCao);
-            post.LuotToCao++;
-             _context.CongThucs.Update(post); 
-            await _context.SaveChangesAsync();
-            return true; 
+                };
+                await _context.CtToCaos.AddAsync(ctToCao);
+                post.LuotToCao++;
+                _context.CongThucs.Update(post);
+                await _context.SaveChangesAsync();
+                return true;
+            }
         }
 
         public async Task<bool> DeleteCommentForAdmin(DeleteCommentDto dto)
