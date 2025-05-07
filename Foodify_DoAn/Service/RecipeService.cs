@@ -6,10 +6,12 @@ using CloudinaryDotNet.Actions;
 using CloudinaryDotNet.Core;
 using DotNetEnv;
 using Foodify_DoAn.Data;
+using Foodify_DoAn.Migrations;
 using Foodify_DoAn.Model;
 using Foodify_DoAn.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Validations;
 using Microsoft.VisualBasic;
@@ -93,9 +95,14 @@ namespace Foodify_DoAn.Service
 
    
 
-        public async Task<bool> deleteCongThuc(int id)
+        public async Task<bool> deleteCongThuc(Like_Share_GetOnePostDto dto)
         {
-            var congthuc = await _context.CongThucs.FindAsync(id);
+            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = dto.token });
+            var role = await _account.CheckUserRole(new TokenModel { AccessToken = dto.token });
+            if (user == null || role != 0) return false; 
+            
+
+            var congthuc = await _context.CongThucs.FindAsync(dto.IdCongThuc);
             if (congthuc == null) return false;
             _context.Remove(congthuc);
             await _context.SaveChangesAsync();
@@ -843,6 +850,41 @@ namespace Foodify_DoAn.Service
             return listPost;
         }
 
-       
+        public async Task<bool> ReportCongThuc(Like_Share_GetOnePostDto dto)
+        {
+            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = dto.token });
+
+            var post = await _context.CongThucs.FirstOrDefaultAsync(x => x.MaCT == dto.IdCongThuc);
+            
+
+            var nguoidung = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == user.Id);
+            if (user == null || nguoidung == null || post == null) return false;
+
+            
+            var ctToCao = new CtToCaos
+            {
+                MaND = nguoidung.MaND,
+                MaCT = dto.IdCongThuc,
+
+            };
+            await _context.CtToCaos.AddAsync(ctToCao);
+            post.LuotToCao++;
+             _context.CongThucs.Update(post); 
+            await _context.SaveChangesAsync();
+            return true; 
+        }
+
+        public async Task<bool> DeleteCommentForAdmin(DeleteCommentDto dto)
+        {
+            var user = await _account.AuthenticationAsync(new TokenModel { AccessToken = dto.token });
+
+            var role = await _account.CheckUserRole(new TokenModel { AccessToken = dto.token });
+            if (user == null || role != 0) return false;
+            var commentDelete = await _context.Comments.FirstOrDefaultAsync(x => x.MaComment == dto.MaComment);
+            if (commentDelete == null) return false;
+            _context.Comments.Remove(commentDelete);
+            await _context.SaveChangesAsync();
+            return true; 
+        }
     }
 }

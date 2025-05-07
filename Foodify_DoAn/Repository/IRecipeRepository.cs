@@ -3,6 +3,7 @@ using Foodify_DoAn.Model;
 using Microsoft.AspNetCore.Components.Web;
 using StackExchange.Redis;
 using System.Diagnostics.Eventing.Reader;
+using System.Security.Policy;
 
 namespace Foodify_DoAn.Repository
 {
@@ -16,9 +17,9 @@ namespace Foodify_DoAn.Repository
 
         public Task<CongThuc> updateCongThuc(int id, RecipeDto congthuc);
 
-        public Task<bool> deleteCongThuc(int id);
+        public Task<bool> deleteCongThuc(Like_Share_GetOnePostDto dto);
 
-
+        public Task<bool> ReportCongThuc(Like_Share_GetOnePostDto dto);
         public Task<bool> LikeCongThuc(Like_Share_GetOnePostDto dto);
 
         public Task<bool> CommentCongThuc(CommentPostDto dto);
@@ -30,6 +31,7 @@ namespace Foodify_DoAn.Repository
 
         public  Task<bool> DeleteComment(DeleteComment_IfTrueDto dto);
 
+        public Task<bool> DeleteCommentForAdmin(DeleteCommentDto dto);
         public Task<List<PostResultDto>> getOneUserAndSharedPost(OneUserPostDto oneUserPostDto);
         public Task<List<PostResultDto>> FindPost(FindPostInputDto dto);
 

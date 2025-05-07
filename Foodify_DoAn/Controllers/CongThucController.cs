@@ -53,12 +53,21 @@ namespace Foodify_DoAn.Controllers
             return Ok(congthuc);
         }
         [HttpDelete("deletecongthuc")]
-        public async Task<IActionResult> deleteCongThuc(int id)
+        public async Task<IActionResult> deleteCongThuc(Like_Share_GetOnePostDto dto)
         {
-            var congthuc = await _repository.deleteCongThuc(id);
-            if (congthuc == false) return NotFound("Không thể xóa công thức");
-            return Ok(congthuc);
+            var congthuc = await _repository.deleteCongThuc(dto);
+            if (congthuc == false) return Unauthorized("Không thể xóa công thức");
+            return Ok("Xóa thành công");
+        
         }
+        [HttpDelete("deleteCommentForAdmin")]
+        public async Task<IActionResult> deleteCommentForAdmin(DeleteCommentDto dto) {
+            var result = await _repository.DeleteCommentForAdmin(dto);
+            if (result == false) return Unauthorized();
+            return Ok("Xóa thành công");
+                
+                }
+
         [HttpPost("LikePost")]
         public async Task<IActionResult> likePost(Like_Share_GetOnePostDto dto)
         {
@@ -127,6 +136,13 @@ namespace Foodify_DoAn.Controllers
             var result = await _repository.getOneUserAndSharedPost(dto);
             if (result == null) return NotFound();
             return Ok(result);  
+        }
+        [HttpPost("reportCongthuc")]
+        public async Task<IActionResult> reportOnePost(Like_Share_GetOnePostDto dto)
+        {
+            var result = await _repository.ReportCongThuc(dto);
+            if (result == false) return BadRequest(result);
+            return Ok("Báo cáo thành công");
         }
     }
 }
