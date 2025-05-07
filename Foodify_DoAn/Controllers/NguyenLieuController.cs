@@ -20,14 +20,14 @@ namespace Foodify_DoAn.Controllers
         public async Task<IActionResult> getAll([FromBody]string token)
         {
             var result   = await nguyenLieuRepository.getAllNguyenLieu(token);
-            if (result == null) return NotFound("Vui lòng đăng nhập");
+            if (result == null) return Unauthorized("Vui lòng đăng nhập");
             return Ok(result); 
         }
         [HttpPost("addnguyenlieu")]
         public async Task<IActionResult> addNguyenLieu(NguyenLieuInputDto nguyenlieu)
         {
             var result = await nguyenLieuRepository.addNguyenLieu(nguyenlieu);
-            if (result == null) return BadRequest("Lỗi khi thêm nguyên liệu");
+            if (result == null) return Unauthorized("Lỗi khi thêm nguyên liệu");
             return Ok(result);
         }
     }

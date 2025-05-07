@@ -1,4 +1,5 @@
-﻿using CloudinaryDotNet;
+﻿using Castle.Components.DictionaryAdapter.Xml;
+using CloudinaryDotNet;
 using FluentEmail.Core;
 using Foodify_DoAn.Data;
 using Foodify_DoAn.Model;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
@@ -39,7 +41,7 @@ namespace Foodify_DoAn.Service
         private readonly IMemoryCache TempOtp;
         private readonly FoodifyContext foodifyContext;
         private readonly Cloudinary cloudinary;
-
+        private readonly FoodifyContext _context;
         public AccountManager(UserManager<TaiKhoan> userManager, SignInManager<TaiKhoan> signInManager,
             RoleManager<VaiTro> roleManager, IConfiguration configuration, IFluentEmail fluentEmail,
             IMemoryCache TempOtp, FoodifyContext foodifyContext, Cloudinary cloudinary
@@ -53,6 +55,18 @@ namespace Foodify_DoAn.Service
             this.roleManager = roleManager;
             this.fluentEmail = fluentEmail;
             this.cloudinary = cloudinary; 
+        }
+
+        public async Task<int> CheckUserRole(TokenModel token)
+        {
+            var user = await AuthenticationAsync(token);
+            if (user == null) return -1;
+
+            var user_Role = await _context.UserRoles.Where(x => x.UserId == user.Id).Select(x=> x.RoleId).ToListAsync();
+
+            if (user_Role.Contains(0)) return 0;
+            if (user_Role.Contains(1) && !user_Role.Contains(0)) return 1;
+            return -1; 
         }
         public async Task<TaiKhoan?> AuthenticationAsync(TokenModel token)
         {

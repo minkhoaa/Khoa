@@ -28,6 +28,7 @@ public class FoodifyContext : IdentityDbContext<
     public DbSet<CtDaShare> CtDaShares { get; set; }
     public DbSet<Comment> Comments { get; set; }
   
+     public DbSet<CtToCaos> CtToCaos { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -51,10 +52,23 @@ public class FoodifyContext : IdentityDbContext<
         builder.Entity<CTDaThich>().ToTable("CTDaThich");
         builder.Entity<TheoDoi>().ToTable("TheoDoi");
         builder.Entity<ThongBao>().ToTable("ThongBao");
-
+        builder.Entity<CtToCaos>().ToTable("CtToCaos");
         builder.Entity<Comment>().ToTable("Comment");
         builder.Entity<CtDaShare>().ToTable("CtDaShare");
         builder.Entity<CtDaShare>().HasKey(x => x.MaShare);
+
+
+        builder.Entity<CtToCaos>().HasKey(x => new { x.MaCT, x.MaND });
+
+        builder.Entity<CtToCaos>()
+            .HasOne(a => a.NguoiDung)
+            .WithMany(ad => ad.CtToCaos)
+            .HasForeignKey(d => d.MaND);
+
+        builder.Entity<CtToCaos>()
+            .HasOne(a => a.CongThuc)
+            .WithMany(ad => ad.CtToCaos) 
+            .HasForeignKey(d => d.MaCT);
 
         builder.Entity<CtDaShare>()
           .HasOne(dl => dl.NguoiDung)

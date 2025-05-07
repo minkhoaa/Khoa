@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Eventing.Reader;
+using System.Security.Policy;
 
 namespace Foodify_DoAn.Repository
 {
@@ -17,6 +18,7 @@ namespace Foodify_DoAn.Repository
 
         public Task<bool> ForgotPassword(ForgotPasswordRequest forgotPasswordRequest);
 
+        public Task<int> CheckUserRole(TokenModel token);
         public Task<bool> ResetPassword(ResetPasswordRequest resetPasswordRequest);
 
         public Task<UserReturn> GetUserInfoAsync(string token);
