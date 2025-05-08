@@ -44,6 +44,9 @@ namespace Foodify_DoAn.Service
             var nguyenLieu = await _context.NguyenLieus.FirstOrDefaultAsync(x => x.MaNL == dto.MaNl);
             if (nguyenLieu == null) return false;
 
+            var ctNguyenLieu = await _context.CTCongThucs.Where(x => x.MaNL == dto.MaNl).ToListAsync();
+
+            _context.CTCongThucs.RemoveRange(ctNguyenLieu);
             _context.NguyenLieus.Remove(nguyenLieu);
             await _context.SaveChangesAsync();
             return true; 
