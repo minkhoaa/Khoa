@@ -1,7 +1,9 @@
 ﻿using Foodify_DoAn.Data;
 using Foodify_DoAn.Model;
 using Foodify_DoAn.Repository;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Foodify_DoAn.Service
 {
@@ -31,6 +33,21 @@ namespace Foodify_DoAn.Service
             await _context.NguyenLieus.AddAsync(nguyenLieu);
             await _context.SaveChangesAsync();
             return nguyenLieu;
+
+        }
+
+        public async Task<bool> deleteNguyenLieu(DeleteNguyenLieuDto dto)
+        {
+            var account = await _account.AuthenticationAsync(new TokenModel { AccessToken = dto.token });
+            var role = await _account.CheckUserRole(new TokenModel { AccessToken = dto.token });
+            if (account == null || role != 0) return false;
+            var nguyenLieu = await _context.NguyenLieus.FirstOrDefaultAsync(x => x.MaNL == dto.MaNl);
+            if (nguyenLieu == null) return false;
+
+            _context.NguyenLieus.Remove(nguyenLieu);
+            await _context.SaveChangesAsync();
+            return true; 
+
 
         }
 

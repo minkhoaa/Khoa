@@ -2,6 +2,7 @@
 using Foodify_DoAn.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 
 namespace Foodify_DoAn.Controllers
 {
@@ -29,6 +30,13 @@ namespace Foodify_DoAn.Controllers
             var result = await nguyenLieuRepository.addNguyenLieu(nguyenlieu);
             if (result == null) return Unauthorized("Lỗi khi thêm nguyên liệu");
             return Ok(result);
+        }
+        [HttpPost("deleteNguyenLieuForAdmin")]
+        public async Task<IActionResult> deleteNguyenlieuForAdmin(DeleteNguyenLieuDto dto)
+        {
+            var result = await nguyenLieuRepository.deleteNguyenLieu(dto);
+            if (result == false) return Unauthorized();
+            return Ok("Xóa thành công");
         }
     }
 }

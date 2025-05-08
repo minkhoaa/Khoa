@@ -8,5 +8,6 @@ namespace Foodify_DoAn.Repository
         Task<List<NguyenLieu>>getAllNguyenLieu(string token);
 
         Task<NguyenLieu> addNguyenLieu(NguyenLieuInputDto nguyenLieuDto);
+        Task<bool> deleteNguyenLieu(DeleteNguyenLieuDto dto);
     };
 }
