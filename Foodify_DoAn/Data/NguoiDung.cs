@@ -17,6 +17,9 @@ namespace Foodify_DoAn.Data
         public int LuotTheoDoi { get; set; }
         public string AnhDaiDien { get; set; }
 
+        public int DeletedPost { get; set; } = 0; // Số lượng bài viết đã bị xóa
+
+        public bool IsValid { get; set; } = true;
         public TaiKhoan TaiKhoan { get; set; }
         public ICollection<DanhGia> DanhGias { get; set; }
         public ICollection<CTDaLuu> CTDaLuus { get; set; }

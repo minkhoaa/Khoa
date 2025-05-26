@@ -106,7 +106,11 @@ namespace Foodify_DoAn.Service
             var user = await userManager.FindByEmailAsync(signInModel.Email);
 
             var passwordValid = await userManager.CheckPasswordAsync(user, signInModel.Password);
-            if (user == null || !passwordValid) return string.Empty;
+            if (user == null || !passwordValid) return "Login Failed";
+
+            var author = await _context.NguoiDungs.FirstOrDefaultAsync(x => x.MaTK == user.Id);
+            if (author.IsValid == false) return "Invalid Account";
+
 
             var authClaims = new List<Claim>
                 { new Claim(ClaimTypes.Email, signInModel.Email),

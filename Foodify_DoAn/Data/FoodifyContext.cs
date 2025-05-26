@@ -63,22 +63,30 @@ public class FoodifyContext : IdentityDbContext<
         builder.Entity<CtToCaos>()
             .HasOne(a => a.NguoiDung)
             .WithMany(ad => ad.CtToCaos)
-            .HasForeignKey(d => d.MaND);
+            .HasForeignKey(d => d.MaND)
+            .OnDelete(DeleteBehavior.Cascade);
+
 
         builder.Entity<CtToCaos>()
             .HasOne(a => a.CongThuc)
-            .WithMany(ad => ad.CtToCaos) 
-            .HasForeignKey(d => d.MaCT);
+            .WithMany(ad => ad.CtToCaos)
+            .HasForeignKey(d => d.MaCT)
+            .OnDelete(DeleteBehavior.Cascade); 
 
         builder.Entity<CtDaShare>()
           .HasOne(dl => dl.NguoiDung)
           .WithMany(nd => nd.CtDaShare)
-          .HasForeignKey(dl => dl.MaND);
+          .HasForeignKey(dl => dl.MaND)
+        .OnDelete(DeleteBehavior.Cascade);
+        ;
 
         builder.Entity<CtDaShare>()
             .HasOne(dl => dl.CongThuc)
             .WithMany(ct => ct.CtDaShares)
-            .HasForeignKey(dl => dl.MaCT);
+            .HasForeignKey(dl => dl.MaCT)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        ;
 
 
         builder.Entity<Comment>().HasKey(x => x.MaComment);
@@ -87,16 +95,21 @@ public class FoodifyContext : IdentityDbContext<
         builder.Entity<ThongBao>()
             .HasOne(x => x.NguoiDung)
             .WithMany(c => c.ThongBaos)
-            .HasForeignKey(z => z.MaND);
+            .HasForeignKey(z => z.MaND)
+            .OnDelete(DeleteBehavior.Cascade);
+            ;
         builder.Entity<Comment>()
             .HasOne(x => x.NguoiDung)
             .WithMany(c => c.Comments)
-            .HasForeignKey(c => c.MaND);
+            .HasForeignKey(c => c.MaND)
+            .OnDelete(DeleteBehavior.Cascade)
+            ;
 
         builder.Entity<Comment>()
             .HasOne(x => x.CongThuc)
             .WithMany(c => c.Comments)
-            .HasForeignKey(x => x.MaBaiViet);
+            .HasForeignKey(x => x.MaBaiViet)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<NguoiDung>()
             .HasOne(nd => nd.TaiKhoan)
@@ -110,12 +123,14 @@ public class FoodifyContext : IdentityDbContext<
         builder.Entity<CTCongThuc>()
             .HasOne(ct => ct.CongThuc)
             .WithMany(c => c.CTCongThucs)
-            .HasForeignKey(ct => ct.MaCT);
+            .HasForeignKey(ct => ct.MaCT)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<CTCongThuc>()
             .HasOne(ct => ct.NguyenLieu)
             .WithMany(nl => nl.CTCongThucs)
-            .HasForeignKey(ct => ct.MaNL);
+            .HasForeignKey(ct => ct.MaNL)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<CTDaLuu>()
             .HasKey(dl => new { dl.MaND, dl.MaCT });
@@ -123,12 +138,14 @@ public class FoodifyContext : IdentityDbContext<
         builder.Entity<CTDaLuu>()
             .HasOne(dl => dl.NguoiDung)
             .WithMany(nd => nd.CTDaLuus)
-            .HasForeignKey(dl => dl.MaND);
+            .HasForeignKey(dl => dl.MaND)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<CTDaLuu>()
             .HasOne(dl => dl.CongThuc)
             .WithMany(ct => ct.CTDaLuus)
-            .HasForeignKey(dl => dl.MaCT);
+            .HasForeignKey(dl => dl.MaCT)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<CTDaThich>()
             .HasKey(dt => new { dt.MaND, dt.MaCT });
@@ -136,7 +153,8 @@ public class FoodifyContext : IdentityDbContext<
         builder.Entity<CTDaThich>()
             .HasOne(dt => dt.NguoiDung)
             .WithMany(nd => nd.CTDaThichs)
-            .HasForeignKey(dt => dt.MaND);
+            .HasForeignKey(dt => dt.MaND)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<CTDaThich>()
             .HasOne(dt => dt.CongThuc)
@@ -150,13 +168,13 @@ public class FoodifyContext : IdentityDbContext<
             .HasOne(td => td.Follower)
             .WithMany(nd => nd.Followers)
             .HasForeignKey(td => td.Following_ID)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<TheoDoi>()
             .HasOne(td => td.Followed)
             .WithMany(nd => nd.Followeds)
             .HasForeignKey(td => td.Followed_ID)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<TaiKhoanVaiTro>()
        .HasKey(tkvt => new { tkvt.UserId, tkvt.RoleId });

@@ -9,6 +9,7 @@ using Foodify_DoAn.Data;
 using Foodify_DoAn.Migrations;
 using Foodify_DoAn.Model;
 using Foodify_DoAn.Repository;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -105,6 +106,13 @@ namespace Foodify_DoAn.Service
             var congthuc = await _context.CongThucs.FindAsync(dto.IdCongThuc);
             if (congthuc == null) return false;
             _context.Remove(congthuc);
+
+            var author = await _context.NguoiDungs.FirstOrDefaultAsync(x=> x.MaND == congthuc.MaND);
+            if (author == null) return false;
+
+            author.DeletedPost++;
+            if (author.DeletedPost >= 5) author.IsValid = false;
+            
             await _context.SaveChangesAsync();
             return true; 
         }

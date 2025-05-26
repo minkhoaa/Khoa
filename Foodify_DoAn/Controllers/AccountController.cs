@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
+using StackExchange.Redis;
 using System.Security.Claims;
 
 namespace Foodify_DoAn.Controllers
@@ -70,10 +71,11 @@ namespace Foodify_DoAn.Controllers
         {
             var result = await accountRepository.SignInAsync(signInModel);
 
-            if (string.IsNullOrEmpty(result))
+            if (result == "Login Failed")
             {
-                return Unauthorized();
+                return Unauthorized("Vui lòng nhập đúng tài khoản và mật khẩu");
             }
+            else if (result == "Invalid Account") return NotFound("Tài khoản đã bị vô hiệu hóa"); 
             return Ok(result); 
         }
 
