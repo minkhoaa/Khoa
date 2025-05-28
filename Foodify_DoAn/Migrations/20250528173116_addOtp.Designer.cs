@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Foodify_DoAn.Migrations
 {
     [DbContext(typeof(FoodifyContext))]
-    partial class FoodifyContextModelSnapshot : ModelSnapshot
+    [Migration("20250528173116_addOtp")]
+    partial class addOtp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -317,33 +320,6 @@ namespace Foodify_DoAn.Migrations
                     b.HasKey("MaNL");
 
                     b.ToTable("NguyenLieu", (string)null);
-                });
-
-            modelBuilder.Entity("Foodify_DoAn.Data.OtpEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Expiration")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Otp")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Password")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OtpEntry", (string)null);
                 });
 
             modelBuilder.Entity("Foodify_DoAn.Data.TaiKhoan", b =>

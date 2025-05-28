@@ -141,22 +141,37 @@ namespace Foodify_DoAn.Service
         }
         public async Task<bool> SendEmailConfirmationAsync(SignUpModel signUpModel)
         {
-            var userExist = await userManager.FindByEmailAsync(signUpModel.Email);
-            if (userExist != null) return false;
+            var userExist = await userManager.Users
+                .AsNoTracking()
+                .AnyAsync(x=>x.UserName == signUpModel.Email);
+            if (userExist) return false;
 
             try
             {
+                await _context.OtpEntries
+                    .Where(x => x.Email == signUpModel.Email)
+                    .ExecuteDeleteAsync(); 
+
                 var otp = new Random().Next(100000, 999999).ToString();
-                TempOtp.Set($"OTP_{signUpModel.Email}", new
+
+                var otpEntry = new OtpEntry
                 {
+                    Email = signUpModel.Email,
                     Otp = otp,
-                    Password = signUpModel.Password
-                }, TimeSpan.FromMinutes(1));
-                await fluentEmail.To(signUpModel.Email)
+                    Password = signUpModel.Password,
+                    Expiration = DateTime.UtcNow.AddMinutes(3)
+                };  
+                await _context.OtpEntries.AddAsync(otpEntry);
+                await _context.SaveChangesAsync();
+
+                var emailTask = fluentEmail.To(signUpModel.Email)
                     .SetFrom("noreply@foodify.com")
                     .Subject("Mã OTP xác thực email")
-                    .Body($"<p>Mã OTP của bạn là: <strong>{otp}</strong> (hiệu lực trong 1 phút).</p>", true)
+                    .Body($"<p>Mã OTP của bạn là: <strong>{otp}</strong> (hiệu lực trong 5 phút).</p>", true)
                     .SendAsync();
+
+                var saveTask = _context.SaveChangesAsync();
+                await Task.WhenAll(emailTask, saveTask); 
 
                 return true;
             }
@@ -167,9 +182,15 @@ namespace Foodify_DoAn.Service
         }
         public async Task<bool> SignUpWithOtpAsync(ConfirmOtp confirmOtp)
         {
-                if (!TempOtp.TryGetValue($"OTP_{confirmOtp.email}", out dynamic? cacheData)) return false;
+            var otp = await _context.OtpEntries.AsNoTracking().FirstOrDefaultAsync(x => x.Email == confirmOtp.email && x.Expiration >= DateTime.UtcNow);
 
-            if (cacheData.Otp != confirmOtp.otp) return false;
+            if (otp== null) return false;
+
+            if (otp.Otp != confirmOtp.otp) return false;
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try { 
             var user = new TaiKhoan
             {
                 Email = confirmOtp.email,
@@ -177,9 +198,13 @@ namespace Foodify_DoAn.Service
                 EmailConfirmed = true,
             };
 
-            var result = await userManager.CreateAsync(user, cacheData.Password);
-            if (!result.Succeeded) return false;
-            if (!await roleManager.RoleExistsAsync(RoleModel.User))
+            var result = await userManager.CreateAsync(user, otp.Password);
+                if (!result.Succeeded)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+                if (!await roleManager.RoleExistsAsync(RoleModel.User))
             {
                 var role = new VaiTro { Name = RoleModel.User };
                 await roleManager.CreateAsync(role);
@@ -202,14 +227,22 @@ namespace Foodify_DoAn.Service
             };
 
             await foodifyContext.NguoiDungs.AddAsync(nguoiDung);
-
-            user.NguoiDung = nguoiDung;
+                await _context.OtpEntries
+               .Where(x => x.Email == confirmOtp.email)
+               .ExecuteDeleteAsync();
+                user.NguoiDung = nguoiDung;
             await foodifyContext.SaveChangesAsync();
-
-            TempOtp.Remove($"OTP_{confirmOtp.email}");
+            await transaction.CommitAsync();
 
             return true;
 
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                // _logger.LogError(ex, "Failed to sign up user with OTP for {Email}", confirmOtp.email);
+                return false;
+            }
         }
 
 

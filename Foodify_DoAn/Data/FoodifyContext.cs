@@ -30,6 +30,8 @@ public class FoodifyContext : IdentityDbContext<
   
      public DbSet<CtToCaos> CtToCaos { get; set; }
 
+    public DbSet<OtpEntry> OtpEntries { get; set; } 
+
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -56,7 +58,8 @@ public class FoodifyContext : IdentityDbContext<
         builder.Entity<Comment>().ToTable("Comment");
         builder.Entity<CtDaShare>().ToTable("CtDaShare");
         builder.Entity<CtDaShare>().HasKey(x => x.MaShare);
-
+        builder.Entity<OtpEntry>().ToTable("OtpEntry");
+        builder.Entity<OtpEntry>().HasKey(x => x.Id);
 
         builder.Entity<CtToCaos>().HasKey(x => new { x.MaCT, x.MaND });
 
