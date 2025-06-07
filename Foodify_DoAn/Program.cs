@@ -70,7 +70,7 @@ builder.Services.AddSingleton(option => {
         );
     return new Cloudinary(account);
 
-});
+}); 
 
 
 // Update the AutoMapper configuration to use an instance of DbMapper instead of the type itself.
@@ -93,7 +93,7 @@ builder.Services.AddAuthentication(option =>
         ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecretKey"]!))
     };
-});
+}); 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 builder.Services.AddStackExchangeRedisCache(options => options.Configuration = builder.Configuration.GetConnectionString("Redis"));

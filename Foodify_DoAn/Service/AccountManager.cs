@@ -167,7 +167,7 @@ namespace Foodify_DoAn.Service
                 var emailTask = fluentEmail.To(signUpModel.Email)
                     .SetFrom("noreply@foodify.com")
                     .Subject("Mã OTP xác thực email")
-                    .Body($"<p>Mã OTP của bạn là: <strong>{otp}</strong> (hiệu lực trong 5 phút).</p>", true)
+                        .Body($"<p>Mã OTP của bạn là: <strong>{otp}</strong> (hiệu lực trong 5 phút).</p>", true)
                     .SendAsync();
 
                 var saveTask = _context.SaveChangesAsync();
